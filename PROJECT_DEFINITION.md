@@ -66,7 +66,7 @@ Consequently, `training_hours` is unavailable at prediction time and excluded fr
 
 PR-AUC is the primary model-selection metric because the positive class is less common and identifying participants at risk of leaving is the main prediction objective.
 
-Recall is the secondary model-selection metric because a false negative—an actual leaver predicted to stay—may result in unrecovered training investment and additional turnover costs.
+Recall is the secondary model-selection metric because a false negative (an actual leaver predicted to stay) may result in unrecovered training investment and additional turnover costs.
 
 Training and validation performance are compared to identify possible overfitting or underfitting.
 
