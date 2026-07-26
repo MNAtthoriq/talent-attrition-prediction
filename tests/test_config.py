@@ -10,6 +10,7 @@ import pytest
 
 from talent_attrition_prediction.config import Settings
 from talent_attrition_prediction.data.pipeline import _load_local_env
+from talent_attrition_prediction.serving.config import ServingSettings
 
 
 def test_settings_loads_terraform_generated_config(
@@ -93,7 +94,37 @@ def test_terminal_kaggle_token_takes_precedence_over_local_env(
 
 
 def test_env_template_contains_no_token() -> None:
-    template = Path(".env.example").read_text(encoding="utf-8")
+    lines = Path(".env.example").read_text(encoding="utf-8").splitlines()
+    token_lines = [line for line in lines if line.startswith("KAGGLE_API_TOKEN=")]
 
-    assert "KAGGLE_API_TOKEN=" in template
-    assert template.split("KAGGLE_API_TOKEN=", maxsplit=1)[1].strip() == ""
+    assert token_lines == ["KAGGLE_API_TOKEN="]
+
+
+def test_serving_settings_load_local_env_without_overriding_runtime(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    (tmp_path / "pyproject.toml").write_text("[project]\n", encoding="utf-8")
+    (tmp_path / ".env").write_text(
+        "TALENT_MODEL_URI=models:/local-model@candidate\n"
+        "MLFLOW_TRACKING_URI=sqlite:////tmp/local-mlflow.db\n"
+        "TALENT_API_HOST=0.0.0.0\n"
+        "PORT=9000\n",
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+    for variable in (
+        "TALENT_MODEL_URI",
+        "MLFLOW_TRACKING_URI",
+        "TALENT_API_HOST",
+        "PORT",
+    ):
+        monkeypatch.delenv(variable, raising=False)
+    monkeypatch.setenv("PORT", "8080")
+
+    settings = ServingSettings.load()
+
+    assert settings.model_uri == "models:/local-model@candidate"
+    assert settings.tracking_uri == "sqlite:////tmp/local-mlflow.db"
+    assert settings.host == "0.0.0.0"
+    assert settings.port == 8080

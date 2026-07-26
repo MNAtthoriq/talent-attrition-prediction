@@ -7,6 +7,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "fastapi>=0.140.0",
     "google-cloud-bigquery>=3.38.0",
     "google-cloud-storage>=3.7.0",
     "kagglehub>=0.3.13",
@@ -18,12 +19,14 @@ dependencies = [
     "pandas>=2.3.3,<3",
     "python-dotenv>=1.1.0",
     "scikit-learn>=1.9.0",
+    "uvicorn[standard]>=0.41.0",
 ]
 
 [project.scripts]
 talent-attrition-prediction = "talent_attrition_prediction:main"
 talent-data = "talent_attrition_prediction.data.pipeline:main"
 talent-modeling = "talent_attrition_prediction.modeling.prepare:main"
+talent-api = "talent_attrition_prediction.serving.run:main"
 
 [build-system]
 requires = ["uv_build>=0.11.21,<0.12.0"]
@@ -31,6 +34,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "httpx2>=2.9.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "python-hcl2>=7.3.1",
