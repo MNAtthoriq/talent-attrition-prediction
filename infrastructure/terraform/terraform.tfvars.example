@@ -6,14 +6,12 @@ location    = "asia-southeast2"
 
 # Keep null to derive "<project_id>-talent-attrition-raw".
 storage_bucket_name           = null
-force_destroy_storage_bucket  = false
+force_destroy_storage_bucket  = true
 
 bigquery_dataset_id   = "talent_attrition"
 raw_table_id          = "raw_candidates"
 modeling_table_id     = "modeling_candidates"
-
-# Safety default. Keep false unless intentionally tearing down a disposable project.
-delete_contents_on_destroy = false
+delete_contents_on_destroy = true
 
 # Pinned data source and reproducibility contract
 kaggle_dataset_handle = "arashnic/hr-analytics-job-change-of-data-scientists/versions/1"
