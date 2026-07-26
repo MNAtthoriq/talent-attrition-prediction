@@ -1,19 +1,24 @@
 [project]
 name = "talent-attrition-prediction"
 version = "0.1.0"
-description = "Add your description here"
+description = "End-to-end MLOps system for predicting talent attrition and supporting training-candidate selection."
 authors = [
     { name = "MNAtthoriq", email = "mnatthoriq@gmail.com" }
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "google-cloud-bigquery>=3.38.0",
+    "google-cloud-storage>=3.7.0",
+    "kagglehub>=0.3.13",
     "numpy>=2.5.1",
     "pandas>=3.0.5",
+    "python-dotenv>=1.1.0",
     "scikit-learn>=1.9.0",
 ]
 
 [project.scripts]
 talent-attrition-prediction = "talent_attrition_prediction:main"
+talent-data = "talent_attrition_prediction.data.pipeline:main"
 
 [build-system]
 requires = ["uv_build>=0.11.21,<0.12.0"]
@@ -23,5 +28,7 @@ build-backend = "uv_build"
 dev = [
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
+    "python-hcl2>=7.3.1",
     "ruff>=0.16.0",
+    "sqlglot>=27.20.0",
 ]

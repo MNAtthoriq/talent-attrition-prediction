@@ -1,2 +1,3 @@
 def main() -> None:
-    print("Hello from talent-attrition-risk!")
+    print("Talent Attrition Prediction")
+    print("Run `talent-data --help` to manage the data pipeline.")

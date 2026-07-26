@@ -1,0 +1,178 @@
+"""Read configuration from environment variables."""
+
+from __future__ import annotations
+
+import json
+import re
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+# Constants
+_PROJECT_ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]{4,28}[a-z0-9]$")
+_BQ_IDENTIFIER_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,1000}$")
+_LOCATION_PATTERN = re.compile(r"^[A-Za-z0-9-]+$")
+_SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
+_BUCKET_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]{1,61}[a-z0-9]$")
+_OBJECT_PATTERN = re.compile(r"^[A-Za-z0-9._/-]+$")
+_FILE_NAME_PATTERN = re.compile(r"^[A-Za-z0-9._-]+$")
+_CONFIG_RELATIVE_PATH = Path(".runtime/project_config.json")
+
+
+@dataclass(frozen=True)
+class Settings:
+    """Runtime configuration."""
+
+    project_id: str
+    storage_bucket_name: str
+    dataset_id: str
+    location: str
+    raw_table_id: str
+    modeling_table_id: str
+    kaggle_dataset_handle: str
+    kaggle_train_file: str
+    raw_object_name: str
+    expected_row_count: int
+    expected_size_bytes: int
+    expected_sha256: str
+    reports_dir: Path
+    sql_dir: Path
+    config_path: Path
+
+    def __post_init__(self) -> None:
+        """Validate runtime configuration."""
+        if not _PROJECT_ID_PATTERN.fullmatch(self.project_id):
+            raise ValueError(
+                "project_id must be a valid 6-30 character Google Cloud project ID."
+            )
+
+        for name, value in (
+            ("dataset_id", self.dataset_id),
+            ("raw_table_id", self.raw_table_id),
+            ("modeling_table_id", self.modeling_table_id),
+        ):
+            if not _BQ_IDENTIFIER_PATTERN.fullmatch(value):
+                raise ValueError(f"{name} is not a valid BigQuery identifier.")
+
+        if not _LOCATION_PATTERN.fullmatch(self.location):
+            raise ValueError("location contains invalid characters.")
+        if not _BUCKET_PATTERN.fullmatch(self.storage_bucket_name):
+            raise ValueError("storage_bucket_name is not a valid Cloud Storage name.")
+        if not self.kaggle_dataset_handle.strip():
+            raise ValueError("kaggle_dataset_handle cannot be blank.")
+        if not _FILE_NAME_PATTERN.fullmatch(self.kaggle_train_file):
+            raise ValueError("kaggle_train_file must be a safe filename.")
+        if (
+            not self.raw_object_name.strip()
+            or self.raw_object_name.startswith("/")
+            or ".." in Path(self.raw_object_name).parts
+            or not _OBJECT_PATTERN.fullmatch(self.raw_object_name)
+        ):
+            raise ValueError("raw_object_name must be a safe relative object path.")
+        if self.expected_row_count <= 0:
+            raise ValueError("expected_row_count must be greater than zero.")
+        if self.expected_size_bytes <= 0:
+            raise ValueError("expected_size_bytes must be greater than zero.")
+        if not _SHA256_PATTERN.fullmatch(self.expected_sha256):
+            raise ValueError("expected_sha256 must be a lowercase SHA-256 value.")
+
+    @classmethod
+    def load(cls, path: Path | None = None) -> Settings:
+        """Load runtime configuration."""
+        config_path = (path or _find_config_path()).resolve()
+        try:
+            payload = json.loads(config_path.read_text(encoding="utf-8"))
+        except FileNotFoundError as error:
+            raise FileNotFoundError(
+                f"Runtime configuration not found at {config_path}. "
+                "Run `terraform apply` in infrastructure/terraform first."
+            ) from error
+        except json.JSONDecodeError as error:
+            raise ValueError(
+                f"Runtime configuration is not valid JSON: {config_path}"
+            ) from error
+
+        if not isinstance(payload, dict):
+            raise TypeError("Runtime configuration must contain a JSON object.")
+        if payload.get("schema_version") != 2:
+            raise ValueError("Unsupported runtime configuration schema_version.")
+
+        repository_root = config_path.parent.parent
+        return cls(
+            project_id=_required_string(payload, "project_id"),
+            storage_bucket_name=_required_string(payload, "storage_bucket_name"),
+            dataset_id=_required_string(payload, "dataset_id"),
+            location=_required_string(payload, "location"),
+            raw_table_id=_required_string(payload, "raw_table_id"),
+            modeling_table_id=_required_string(payload, "modeling_table_id"),
+            kaggle_dataset_handle=_required_string(payload, "kaggle_dataset_handle"),
+            kaggle_train_file=_required_string(payload, "kaggle_train_file"),
+            raw_object_name=_required_string(payload, "raw_object_name"),
+            expected_row_count=_required_integer(payload, "expected_row_count"),
+            expected_size_bytes=_required_integer(payload, "expected_size_bytes"),
+            expected_sha256=_required_string(payload, "expected_sha256"),
+            reports_dir=_resolve_project_path(repository_root, payload, "reports_dir"),
+            sql_dir=_resolve_project_path(repository_root, payload, "sql_dir"),
+            config_path=config_path,
+        )
+
+    @property
+    def raw_table_fqn(self) -> str:
+        """Return the fully-qualified name of the raw table."""
+        return f"{self.project_id}.{self.dataset_id}.{self.raw_table_id}"
+
+    @property
+    def modeling_table_fqn(self) -> str:
+        """Return the fully-qualified name of the modeling table."""
+        return f"{self.project_id}.{self.dataset_id}.{self.modeling_table_id}"
+
+    @property
+    def raw_gcs_uri(self) -> str:
+        """Return the GCS URI of the raw object."""
+        return f"gs://{self.storage_bucket_name}/{self.raw_object_name}"
+
+
+def _find_config_path() -> Path:
+    """Return the path to the runtime configuration file."""
+    for directory in (Path.cwd(), *Path.cwd().parents):
+        candidate = directory / _CONFIG_RELATIVE_PATH
+        if candidate.is_file():
+            return candidate
+
+    editable_repository_candidate = (
+        Path(__file__).resolve().parents[2] / _CONFIG_RELATIVE_PATH
+    )
+    if editable_repository_candidate.is_file():
+        return editable_repository_candidate
+
+    return Path.cwd() / _CONFIG_RELATIVE_PATH
+
+
+def _required_string(payload: dict[str, Any], key: str) -> str:
+    """Return a required string from the runtime configuration."""
+    value = payload.get(key)
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"Runtime configuration key {key!r} must be a string.")
+    return value
+
+
+def _required_integer(payload: dict[str, Any], key: str) -> int:
+    """Return a required integer from the runtime configuration."""
+    value = payload.get(key)
+    if not isinstance(value, int) or isinstance(value, bool):
+        raise TypeError(f"Runtime configuration key {key!r} must be an integer.")
+    return value
+
+
+def _resolve_project_path(
+    repository_root: Path,
+    payload: dict[str, Any],
+    key: str,
+) -> Path:
+    """Return a project-relative path from the runtime configuration."""
+    relative_path = Path(_required_string(payload, key))
+    if relative_path.is_absolute() or ".." in relative_path.parts:
+        raise ValueError(
+            f"Runtime configuration key {key!r} must be a repository-relative path."
+        )
+    return (repository_root / relative_path).resolve()

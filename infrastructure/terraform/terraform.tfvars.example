@@ -1,0 +1,35 @@
+# REQUIRED: replace this with an existing Google Cloud project ID.
+project_id  = "your-gcp-project-id"
+
+# Google Cloud, Cloud Storage, and BigQuery
+location    = "asia-southeast2"
+
+# Keep null to derive "<project_id>-talent-attrition-raw".
+storage_bucket_name           = null
+force_destroy_storage_bucket  = false
+
+bigquery_dataset_id   = "talent_attrition"
+raw_table_id          = "raw_candidates"
+modeling_table_id     = "modeling_candidates"
+
+# Safety default. Keep false unless intentionally tearing down a disposable project.
+delete_contents_on_destroy = false
+
+# Pinned data source and reproducibility contract
+kaggle_dataset_handle = "arashnic/hr-analytics-job-change-of-data-scientists/versions/1"
+kaggle_train_file     = "aug_train.csv"
+raw_object_name       = "raw/kaggle/v1/aug_train.csv"
+expected_row_count    = 19158
+expected_size_bytes   = 1961145
+expected_sha256       = "8b78da3482032500df40d5359c36ba4a59e28ccd6fc272b050dcf6dee37f114c"
+
+# Repository-relative application paths
+reports_dir  = "reports/generated"
+sql_dir      = "sql"
+
+# Reused by BigQuery now and future resources such as Artifact Registry.
+resource_labels = {
+  application = "talent-attrition-prediction"
+  environment = "development"
+  managed_by  = "terraform"
+}

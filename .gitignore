@@ -191,6 +191,30 @@ cython_debug/
 # Ruff stuff:
 .ruff_cache/
 
+# Project data and generated artifacts
+/data/raw/
+/data/processed/
+/reports/generated/
+/models/
+/mlruns/
+/.runtime/
+
+# Terraform local state and user-specific values
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+**/tfplan
+*.tfvars
+!*.tfvars.example
+.terraform.tfstate.lock.info
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
 # PyPI configuration file
 .pypirc
 
