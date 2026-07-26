@@ -29,26 +29,6 @@ EXPECTED_COLUMNS = (
     "target",
 )
 
-MODEL_FEATURE_COLUMNS = (
-    "city",
-    "city_development_index",
-    "relevant_experience",
-    "enrolled_university",
-    "education_level",
-    "major_discipline",
-    "experience",
-    "company_size",
-    "company_type",
-    "last_new_job",
-)
-
-EXCLUDED_MODEL_COLUMNS = {
-    "enrollee_id": "identifier",
-    "gender": "protected characteristic; fairness audit only",
-    "training_hours": "unavailable at prediction time",
-    "target": "prediction target",
-}
-
 RAW_BIGQUERY_SCHEMA = tuple(
     bigquery.SchemaField(column, "STRING", mode="NULLABLE")
     for column in EXPECTED_COLUMNS

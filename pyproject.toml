@@ -19,6 +19,7 @@ dependencies = [
 [project.scripts]
 talent-attrition-prediction = "talent_attrition_prediction:main"
 talent-data = "talent_attrition_prediction.data.pipeline:main"
+talent-modeling = "talent_attrition_prediction.modeling.prepare:main"
 
 [build-system]
 requires = ["uv_build>=0.11.21,<0.12.0"]
