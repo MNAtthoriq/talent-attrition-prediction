@@ -1,8 +1,9 @@
-"""Verify the leakage-safe split and preprocessing contract against BigQuery."""
+"""Prepare the modeling base without persisting fitted objects."""
 
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 
 from talent_attrition_prediction.config import Settings
 from talent_attrition_prediction.modeling.data import (
@@ -89,12 +90,75 @@ def _build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_RANDOM_STATE,
         help=f"Reproducible split seed; default: {DEFAULT_RANDOM_STATE}.",
     )
+
+    tune = subparsers.add_parser(
+        "tune",
+        help="Tune preprocessing and models on development data with Optuna.",
+    )
+    tune.add_argument(
+        "--trials",
+        type=int,
+        default=24,
+        help="Target total completed Optuna trials; default: 24.",
+    )
+    tune.add_argument(
+        "--cv-folds",
+        type=int,
+        default=5,
+        help="Stratified cross-validation folds; default: 5.",
+    )
+    tune.add_argument(
+        "--timeout-minutes",
+        type=float,
+        default=30.0,
+        help="Stop starting new trials after this many minutes; default: 30.",
+    )
+    tune.add_argument(
+        "--tracking-uri",
+        default=None,
+        help="Optional MLflow tracking URI; defaults to local SQLite.",
+    )
+
+    finalize = subparsers.add_parser(
+        "finalize",
+        help="Evaluate the Optuna winner once on test data and register it.",
+    )
+    finalize.add_argument(
+        "--tracking-uri",
+        default=None,
+        help="Optional MLflow tracking URI; defaults to local SQLite.",
+    )
+    finalize.add_argument(
+        "--allow-test-reevaluation",
+        action="store_true",
+        help="Explicitly allow replacing an existing final test evaluation.",
+    )
+
+    export = subparsers.add_parser(
+        "export-results",
+        help="Package generated summaries for review.",
+    )
+    export.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Optional ZIP path; defaults inside reports/generated.",
+    )
     return parser
 
 
 def main() -> None:
     """Run the modeling preparation CLI."""
     args = _build_parser().parse_args()
+    if args.command == "export-results":
+        from talent_attrition_prediction.modeling.reporting import export_results
+
+        reports_dir = _find_repository_root() / "reports" / "generated"
+        output_path = args.output or (reports_dir / "section_c_results.zip")
+        exported = export_results(reports_dir, output_path)
+        print(f"Wrote review bundle to {exported}")
+        return
+
     settings = Settings.load()
     if args.command == "prepare":
         prepare_modeling_data(
@@ -102,3 +166,32 @@ def main() -> None:
             test_size=args.test_size,
             random_state=args.random_state,
         )
+    elif args.command == "tune":
+        from talent_attrition_prediction.modeling.training import tune_models
+
+        tune_models(
+            settings,
+            target_trials=args.trials,
+            cv_folds=args.cv_folds,
+            timeout_minutes=args.timeout_minutes,
+            tracking_uri=args.tracking_uri,
+        )
+    elif args.command == "finalize":
+        from talent_attrition_prediction.modeling.training import finalize_model
+
+        finalize_model(
+            settings,
+            tracking_uri=args.tracking_uri,
+            allow_test_reevaluation=args.allow_test_reevaluation,
+        )
+
+
+def _find_repository_root() -> Path:
+    """Find the project root without requiring cloud runtime configuration."""
+    for directory in (Path.cwd(), *Path.cwd().parents):
+        pyproject = directory / "pyproject.toml"
+        if pyproject.is_file() and "talent-attrition-prediction" in pyproject.read_text(
+            encoding="utf-8"
+        ):
+            return directory
+    return Path.cwd()
