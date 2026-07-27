@@ -67,7 +67,7 @@ Consequently, `training_hours` is unavailable at prediction time and excluded fr
 
 PR-AUC is the primary model-selection metric because the positive class is less common and identifying participants with job-change intent is the main prediction objective.
 
-Recall is the secondary model-selection metric because a false negative—a participant who is looking for a job change but is predicted as not looking—may incorrectly receive higher training priority.
+Recall is the secondary model-selection metric because a false negative (a participant who is looking for a job change but is predicted as not looking) may incorrectly receive higher training priority.
 
 Training and validation performance are compared to identify possible overfitting or underfitting.
 
