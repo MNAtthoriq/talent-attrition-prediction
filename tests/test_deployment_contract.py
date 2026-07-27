@@ -105,9 +105,9 @@ def test_pyproject_exposes_deployment_commands() -> None:
 
 
 def test_deploy_uses_terraform_variables_as_gcp_source_of_truth() -> None:
-    source = Path("src/talent_job_change_intent_prediction/deployment/deploy.py").read_text(
-        encoding="utf-8"
-    )
+    source = Path(
+        "src/talent_job_change_intent_prediction/deployment/deploy.py"
+    ).read_text(encoding="utf-8")
 
     assert "TERRAFORM_VARIABLES_FILE" in source
     assert 'parser.add_argument("--project-id"' not in source
@@ -180,7 +180,9 @@ def test_model_download_directory_is_separate_from_staging(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    export_module = import_module("talent_job_change_intent_prediction.deployment.export_model")
+    export_module = import_module(
+        "talent_job_change_intent_prediction.deployment.export_model"
+    )
     monkeypatch.setattr(export_module, "REPOSITORY_ROOT", tmp_path)
     monkeypatch.setattr(
         export_module.ModelService,

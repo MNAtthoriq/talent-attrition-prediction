@@ -151,7 +151,9 @@ def main() -> None:
     """Run the modeling preparation CLI."""
     args = _build_parser().parse_args()
     if args.command == "export-results":
-        from talent_job_change_intent_prediction.modeling.reporting import export_results
+        from talent_job_change_intent_prediction.modeling.reporting import (
+            export_results,
+        )
 
         reports_dir = _find_repository_root() / "reports" / "generated"
         output_path = args.output or (reports_dir / "section_c_results.zip")
@@ -190,8 +192,10 @@ def _find_repository_root() -> Path:
     """Find the project root without requiring cloud runtime configuration."""
     for directory in (Path.cwd(), *Path.cwd().parents):
         pyproject = directory / "pyproject.toml"
-        if pyproject.is_file() and "talent-job-change-intent-prediction" in pyproject.read_text(
-            encoding="utf-8"
+        if (
+            pyproject.is_file()
+            and "talent-job-change-intent-prediction"
+            in pyproject.read_text(encoding="utf-8")
         ):
             return directory
     return Path.cwd()

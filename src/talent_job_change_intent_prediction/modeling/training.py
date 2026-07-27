@@ -460,9 +460,7 @@ def _mlflow_params(params: dict[str, Any]) -> dict[str, str | int | float | bool
 
 def _study_name(source_sha256: str, cv_folds: int) -> str:
     """Isolate scores that use different data, CV, or search-space contracts."""
-    return (
-        f"talent-job-change-intent-v{_SEARCH_SPACE_VERSION}-{source_sha256[:12]}-cv{cv_folds}"
-    )
+    return f"talent-job-change-intent-v{_SEARCH_SPACE_VERSION}-{source_sha256[:12]}-cv{cv_folds}"
 
 
 def _tuning_study_name(

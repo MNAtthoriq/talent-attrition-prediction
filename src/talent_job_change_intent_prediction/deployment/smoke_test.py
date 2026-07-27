@@ -57,7 +57,10 @@ def smoke_test(base_url: str, *, wait_seconds: int = 180) -> None:
 
     job_change_intent = prediction.get("job_change_intent_probability")
     no_job_change_intent = prediction.get("no_job_change_intent_probability")
-    if not isinstance(job_change_intent, (int, float)) or not 0 <= job_change_intent <= 1:
+    if (
+        not isinstance(job_change_intent, (int, float))
+        or not 0 <= job_change_intent <= 1
+    ):
         raise RuntimeError("Prediction did not contain a valid probability.")
     if (
         not isinstance(no_job_change_intent, (int, float))

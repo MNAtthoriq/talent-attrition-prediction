@@ -26,7 +26,9 @@ def test_settings_loads_terraform_generated_config(
         "gs://talent-ml-123-talent-job-change-intent-raw/raw/kaggle/v1/aug_train.csv"
     )
     assert settings.reports_dir == repository_root / "reports/generated"
-    assert settings.raw_table_fqn == ("talent-ml-123.talent_job_change_intent.raw_candidates")
+    assert settings.raw_table_fqn == (
+        "talent-ml-123.talent_job_change_intent.raw_candidates"
+    )
 
 
 def test_invalid_bigquery_identifier_is_rejected(

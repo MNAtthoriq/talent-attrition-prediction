@@ -16,7 +16,9 @@ def test_render_sql_replaces_identifiers(tmp_path: Path, settings) -> None:
 
     result = render_sql(sql_path, settings)
 
-    assert result == ("SELECT * FROM `talent-ml-123.talent_job_change_intent.raw_candidates`")
+    assert result == (
+        "SELECT * FROM `talent-ml-123.talent_job_change_intent.raw_candidates`"
+    )
     assert "{{" not in result
 
 
