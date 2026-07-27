@@ -36,20 +36,20 @@ def deploy(
 
     _run(["terraform", f"-chdir={TERRAFORM_DIR}", "init"])
     current_image = _current_container_image()
-    bootstrap_image = current_image or "null"
 
-    # Terraform automatically loads infrastructure/terraform/terraform.tfvars.
-    # Preserve the deployed digest during later bootstrap applies. Forcing null
-    # unconditionally would destroy and recreate an existing Cloud Run service.
-    _run(
-        [
-            "terraform",
-            f"-chdir={TERRAFORM_DIR}",
-            "apply",
-            "-auto-approve",
-            f"-var=container_image={bootstrap_image}",
-        ]
-    )
+    bootstrap_command = [
+        "terraform",
+        f"-chdir={TERRAFORM_DIR}",
+        "apply",
+        "-auto-approve",
+    ]
+
+    # On the first deployment, let terraform.tfvars provide the real null.
+    # On redeployment, preserve the currently deployed image.
+    if current_image is not None:
+        bootstrap_command.append(f"-var=container_image={current_image}")
+
+    _run(bootstrap_command)
 
     project_id = _terraform_output("project_id")
     if not PROJECT_ID.fullmatch(project_id):
