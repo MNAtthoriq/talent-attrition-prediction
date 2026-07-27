@@ -513,7 +513,7 @@ def _set_or_validate_study_contract(
 
 
 def _selected_study_name(path: Path, *, source_sha256: str) -> str:
-    """Load the exact reviewed study, including legacy Section C summaries."""
+    """Load the exact reviewed study, including legacy summaries."""
     if not path.is_file():
         raise RuntimeError(
             "No model-selection summary exists. Run `talent-modeling tune` first."

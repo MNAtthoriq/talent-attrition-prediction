@@ -48,6 +48,6 @@ def export_results(reports_dir: Path, output_path: Path) -> Path:
         )
     if not included:
         raise FileNotFoundError(
-            f"No generated Section C results were found in {reports_dir}."
+            f"No generated results were found in {reports_dir}."
         )
     return output_path

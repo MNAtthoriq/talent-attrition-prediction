@@ -156,7 +156,7 @@ def main() -> None:
         )
 
         reports_dir = _find_repository_root() / "reports" / "generated"
-        output_path = args.output or (reports_dir / "section_c_results.zip")
+        output_path = args.output or (reports_dir / "model_results.zip")
         exported = export_results(reports_dir, output_path)
         print(f"Wrote review bundle to {exported}")
         return

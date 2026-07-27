@@ -23,7 +23,7 @@ PreprocessingStrategy = Literal["all_ohe", "ordinal_aware"]
 
 @dataclass(frozen=True)
 class PreprocessingConfig:
-    """One leakage-safe preprocessing candidate for Section C evaluation."""
+    """One leakage-safe preprocessing candidate for evaluation."""
 
     strategy: PreprocessingStrategy = "all_ohe"
     include_city: bool = False
@@ -52,7 +52,7 @@ class PreprocessingConfig:
 
 
 def preprocessing_candidates() -> tuple[PreprocessingConfig, ...]:
-    """Return the four candidates Section C will compare."""
+    """Return the four candidates that will compare."""
     return tuple(
         PreprocessingConfig(strategy=strategy, include_city=include_city)
         for strategy in ("all_ohe", "ordinal_aware")
