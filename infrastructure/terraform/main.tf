@@ -29,7 +29,10 @@ locals {
 
 resource "google_project_service" "required" {
   for_each = toset([
+    "artifactregistry.googleapis.com",
     "bigquery.googleapis.com",
+    "iam.googleapis.com",
+    "run.googleapis.com",
     "storage.googleapis.com",
   ])
 
@@ -53,6 +56,112 @@ resource "google_storage_bucket" "raw_data" {
   }
 
   depends_on = [google_project_service.required]
+}
+
+resource "google_artifact_registry_repository" "api" {
+  project       = var.project_id
+  location      = var.location
+  repository_id = var.artifact_repository_id
+  description   = "Versioned container images for the talent attrition API."
+  format        = "DOCKER"
+  labels        = var.resource_labels
+
+  cleanup_policy_dry_run = false
+
+  cleanup_policies {
+    id     = "keep-recent-versions"
+    action = "KEEP"
+
+    most_recent_versions {
+      keep_count = var.container_versions_to_keep
+    }
+  }
+
+  cleanup_policies {
+    id     = "delete-old-untagged"
+    action = "DELETE"
+
+    condition {
+      tag_state  = "UNTAGGED"
+      older_than = "2592000s"
+    }
+  }
+
+  depends_on = [google_project_service.required]
+}
+
+resource "google_service_account" "cloud_run" {
+  project      = var.project_id
+  account_id   = var.cloud_run_service_account_id
+  display_name = "Talent attrition Cloud Run runtime"
+  description  = "Least-privilege identity for the talent attrition prediction API."
+
+  depends_on = [google_project_service.required]
+}
+
+resource "google_cloud_run_v2_service" "api" {
+  count = var.container_image == null ? 0 : 1
+
+  project              = var.project_id
+  name                 = var.cloud_run_service_name
+  location             = var.location
+  deletion_protection  = var.cloud_run_deletion_protection
+  ingress              = "INGRESS_TRAFFIC_ALL"
+  invoker_iam_disabled = var.allow_unauthenticated
+  labels               = var.resource_labels
+
+  lifecycle {
+    precondition {
+      condition     = var.min_instances <= var.max_instances
+      error_message = "min_instances cannot be greater than max_instances."
+    }
+  }
+
+  template {
+    service_account                  = google_service_account.cloud_run.email
+    max_instance_request_concurrency = var.container_concurrency
+    timeout                          = "${var.request_timeout_seconds}s"
+
+    scaling {
+      min_instance_count = var.min_instances
+      max_instance_count = var.max_instances
+    }
+
+    containers {
+      name  = "api"
+      image = var.container_image
+
+      ports {
+        name           = "http1"
+        container_port = 8080
+      }
+
+      resources {
+        limits = {
+          cpu    = var.container_cpu
+          memory = var.container_memory
+        }
+        cpu_idle          = true
+        startup_cpu_boost = true
+      }
+
+      startup_probe {
+        initial_delay_seconds = 0
+        timeout_seconds       = 1
+        period_seconds        = 5
+        failure_threshold     = 24
+
+        tcp_socket {
+          port = 8080
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    google_artifact_registry_repository.api,
+    google_project_service.required,
+  ]
 }
 
 resource "google_bigquery_dataset" "talent_attrition" {

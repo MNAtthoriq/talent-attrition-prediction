@@ -4,6 +4,24 @@ project_id  = "your-gcp-project-id"
 # Google Cloud, Cloud Storage, and BigQuery
 location    = "asia-southeast2"
 
+# Container registry and Cloud Run
+artifact_repository_id       = "talent-attrition"
+container_versions_to_keep   = 10
+cloud_run_service_account_id = "talent-attrition-api"
+cloud_run_service_name       = "talent-attrition-api"
+
+# Keep null in this file. `uv run talent-deploy` supplies an immutable digest
+# after building and pushing the container.
+container_image               = null
+allow_unauthenticated         = true
+cloud_run_deletion_protection = false
+min_instances                 = 0
+max_instances                 = 2
+container_concurrency         = 20
+request_timeout_seconds       = 60
+container_cpu                 = "1"
+container_memory              = "2Gi"
+
 # Keep null to derive "<project_id>-talent-attrition-raw".
 storage_bucket_name           = null
 force_destroy_storage_bucket  = true

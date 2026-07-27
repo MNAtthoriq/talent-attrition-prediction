@@ -199,6 +199,7 @@ cython_debug/
 /mlruns/
 /.mlflow/
 /.runtime/
+/.deployment/
 
 # Terraform local state and user-specific values
 **/.terraform/*

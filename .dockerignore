@@ -1,0 +1,10 @@
+*
+!Dockerfile
+!pyproject.toml
+!uv.lock
+!src/
+!src/**
+!.deployment/
+!.deployment/model/
+!.deployment/model/**
+!.deployment/model-descriptor.json

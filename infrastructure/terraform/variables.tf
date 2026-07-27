@@ -34,6 +34,138 @@ variable "storage_bucket_name" {
   }
 }
 
+variable "artifact_repository_id" {
+  description = "Artifact Registry Docker repository for API images."
+  type        = string
+  default     = "talent-attrition"
+
+  validation {
+    condition     = can(regex("^[a-z][a-z0-9-]{2,62}$", var.artifact_repository_id))
+    error_message = "artifact_repository_id must contain 3-63 lowercase letters, numbers, or hyphens."
+  }
+}
+
+variable "container_versions_to_keep" {
+  description = "Number of recent container image versions retained by cleanup policy."
+  type        = number
+  default     = 10
+
+  validation {
+    condition     = var.container_versions_to_keep >= 1 && floor(var.container_versions_to_keep) == var.container_versions_to_keep
+    error_message = "container_versions_to_keep must be a positive integer."
+  }
+}
+
+variable "cloud_run_service_account_id" {
+  description = "Account ID for the dedicated Cloud Run runtime identity."
+  type        = string
+  default     = "talent-attrition-api"
+
+  validation {
+    condition     = can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", var.cloud_run_service_account_id))
+    error_message = "cloud_run_service_account_id must be a valid 6-30 character service-account ID."
+  }
+}
+
+variable "cloud_run_service_name" {
+  description = "Cloud Run service name."
+  type        = string
+  default     = "talent-attrition-api"
+
+  validation {
+    condition     = can(regex("^[a-z]([a-z0-9-]{0,47}[a-z0-9])?$", var.cloud_run_service_name))
+    error_message = "cloud_run_service_name must be 1-49 lowercase letters, numbers, or hyphens; it must start with a letter and cannot end with a hyphen."
+  }
+}
+
+variable "container_image" {
+  description = "Immutable Artifact Registry image URI including sha256 digest. Null provisions only bootstrap infrastructure."
+  type        = string
+  default     = null
+  nullable    = true
+
+  validation {
+    condition = (
+      var.container_image == null
+      || can(regex("^.+-docker\\.pkg\\.dev/.+@sha256:[a-f0-9]{64}$", var.container_image))
+    )
+    error_message = "container_image must be null or an Artifact Registry URI pinned by sha256 digest."
+  }
+}
+
+variable "allow_unauthenticated" {
+  description = "Disable the Cloud Run Invoker IAM check for this public portfolio API."
+  type        = bool
+  default     = true
+}
+
+variable "cloud_run_deletion_protection" {
+  description = "Prevent Terraform from deleting the Cloud Run service."
+  type        = bool
+  default     = false
+}
+
+variable "min_instances" {
+  description = "Minimum warm Cloud Run instances. Zero avoids idle compute cost."
+  type        = number
+  default     = 0
+
+  validation {
+    condition     = var.min_instances >= 0 && floor(var.min_instances) == var.min_instances
+    error_message = "min_instances must be a non-negative integer."
+  }
+}
+
+variable "max_instances" {
+  description = "Maximum Cloud Run instances, limiting portfolio-demo cost exposure."
+  type        = number
+  default     = 2
+
+  validation {
+    condition     = var.max_instances >= 1 && floor(var.max_instances) == var.max_instances
+    error_message = "max_instances must be a positive integer."
+  }
+}
+
+variable "container_concurrency" {
+  description = "Maximum concurrent requests handled by each API instance."
+  type        = number
+  default     = 20
+
+  validation {
+    condition     = var.container_concurrency >= 1 && var.container_concurrency <= 1000
+    error_message = "container_concurrency must be between 1 and 1000."
+  }
+}
+
+variable "request_timeout_seconds" {
+  description = "Maximum Cloud Run request duration."
+  type        = number
+  default     = 60
+
+  validation {
+    condition     = var.request_timeout_seconds >= 1 && var.request_timeout_seconds <= 3600
+    error_message = "request_timeout_seconds must be between 1 and 3600."
+  }
+}
+
+variable "container_cpu" {
+  description = "CPU limit for each Cloud Run instance."
+  type        = string
+  default     = "1"
+}
+
+variable "container_memory" {
+  description = "Memory limit for each Cloud Run instance."
+  type        = string
+  default     = "2Gi"
+
+  validation {
+    condition     = can(regex("^[1-9][0-9]*(Mi|Gi)$", var.container_memory))
+    error_message = "container_memory must use a positive Mi or Gi quantity, such as 2Gi."
+  }
+}
+
 variable "force_destroy_storage_bucket" {
   description = "Allow Terraform to delete a non-empty raw-data bucket during teardown."
   type        = bool

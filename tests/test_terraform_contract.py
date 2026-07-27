@@ -62,13 +62,35 @@ def test_python_runtime_config_is_generated_from_terraform_variables() -> None:
         assert f'"{key}"' in config_source
 
 
-def test_terraform_provisions_secure_gcs_and_bigquery_foundation() -> None:
+def test_terraform_provisions_data_and_cloud_run_foundation() -> None:
     main_tf = (TERRAFORM_DIR / "main.tf").read_text(encoding="utf-8")
 
     assert '"storage.googleapis.com"' in main_tf
     assert '"bigquery.googleapis.com"' in main_tf
+    assert '"artifactregistry.googleapis.com"' in main_tf
+    assert '"iam.googleapis.com"' in main_tf
+    assert '"run.googleapis.com"' in main_tf
     assert 'resource "google_storage_bucket" "raw_data"' in main_tf
     assert 'public_access_prevention    = "enforced"' in main_tf
     assert "uniform_bucket_level_access = true" in main_tf
     assert "versioning {" in main_tf
     assert 'resource "google_bigquery_dataset" "talent_attrition"' in main_tf
+    assert 'resource "google_artifact_registry_repository" "api"' in main_tf
+    assert 'resource "google_service_account" "cloud_run"' in main_tf
+    assert "depends_on = [google_project_service.required]" in main_tf
+    assert 'resource "google_cloud_run_v2_service" "api"' in main_tf
+    assert "var.container_image == null ? 0 : 1" in main_tf
+    assert "invoker_iam_disabled = var.allow_unauthenticated" in main_tf
+    assert "var.min_instances <= var.max_instances" in main_tf
+    assert "max_instance_count = var.max_instances" in main_tf
+
+
+def test_terraform_exposes_cli_configuration_outputs() -> None:
+    outputs_tf = (TERRAFORM_DIR / "outputs.tf").read_text(encoding="utf-8")
+
+    assert 'output "project_id"' in outputs_tf
+    assert "value       = var.project_id" in outputs_tf
+    assert 'output "location"' in outputs_tf
+    assert "value       = var.location" in outputs_tf
+    assert 'output "cloud_run_service_name"' in outputs_tf
+    assert "value       = var.cloud_run_service_name" in outputs_tf

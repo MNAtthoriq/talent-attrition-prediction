@@ -116,6 +116,7 @@ def test_serving_settings_load_local_env_without_overriding_runtime(
     for variable in (
         "TALENT_MODEL_URI",
         "MLFLOW_TRACKING_URI",
+        "TALENT_MODEL_DESCRIPTOR",
         "TALENT_API_HOST",
         "PORT",
     ):
@@ -126,5 +127,17 @@ def test_serving_settings_load_local_env_without_overriding_runtime(
 
     assert settings.model_uri == "models:/local-model@candidate"
     assert settings.tracking_uri == "sqlite:////tmp/local-mlflow.db"
+    assert settings.model_descriptor_path is None
     assert settings.host == "0.0.0.0"
     assert settings.port == 8080
+
+
+def test_serving_settings_requires_existing_model_descriptor(
+    tmp_path: Path,
+) -> None:
+    with pytest.raises(ValueError, match="model_descriptor_path"):
+        ServingSettings(
+            model_uri="models:/local-model@candidate",
+            tracking_uri="sqlite:////tmp/local-mlflow.db",
+            model_descriptor_path=tmp_path / "missing.json",
+        )

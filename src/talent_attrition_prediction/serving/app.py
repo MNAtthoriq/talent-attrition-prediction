@@ -44,6 +44,7 @@ def create_app(
         application.state.model_service = service or ModelService.load(
             model_uri=resolved_settings.model_uri,
             tracking_uri=resolved_settings.tracking_uri,
+            descriptor_path=resolved_settings.model_descriptor_path,
         )
         yield
 

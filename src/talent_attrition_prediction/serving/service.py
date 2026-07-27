@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Protocol
 
 import mlflow
@@ -58,11 +60,15 @@ class ModelService:
         *,
         model_uri: str,
         tracking_uri: str,
+        descriptor_path: Path | None = None,
     ) -> ModelService:
         """Load one registered model alias and resolve its metadata."""
         mlflow.set_tracking_uri(tracking_uri)
         mlflow.set_registry_uri(tracking_uri)
         model = mlflow.pyfunc.load_model(model_uri)
+        if descriptor_path is not None:
+            return cls(model, _load_exported_descriptor(descriptor_path))
+
         model_info = mlflow.models.get_model_info(model_uri)
         metadata = dict(model_info.metadata or {})
 
@@ -146,3 +152,49 @@ def _optional_integer(value: object) -> int | None:
         return int(value)
     except (TypeError, ValueError):
         return None
+
+
+def _load_exported_descriptor(path: Path) -> ModelDescriptor:
+    """Load the lineage sidecar produced by the deployment export."""
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise RuntimeError(f"Cannot read model descriptor at {path}.") from error
+
+    if payload.get("schema_version") != 1 or not isinstance(payload.get("model"), dict):
+        raise RuntimeError("Unsupported deployment model descriptor.")
+
+    model = payload["model"]
+    try:
+        return ModelDescriptor(
+            model_uri=str(model["model_uri"]),
+            model_name=_optional_string(model.get("model_name")),
+            model_version=_optional_string(model.get("model_version")),
+            model_alias=_optional_string(model.get("model_alias")),
+            run_id=_optional_string(model.get("run_id")),
+            git_commit=_optional_string(model.get("git_commit")),
+            source_sha256=_optional_string(model.get("source_sha256")),
+            optuna_study=_optional_string(model.get("optuna_study")),
+            optuna_trial=_optional_integer(model.get("optuna_trial")),
+            preprocessing=_optional_string(model.get("preprocessing")),
+            parameters=_string_mapping(model.get("parameters")),
+            test_metrics=_float_mapping(model.get("test_metrics")),
+        )
+    except (KeyError, TypeError, ValueError) as error:
+        raise RuntimeError("Deployment model descriptor is invalid.") from error
+
+
+def _string_mapping(value: object) -> dict[str, str]:
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise TypeError("parameters must be an object.")
+    return {str(key): str(item) for key, item in value.items()}
+
+
+def _float_mapping(value: object) -> dict[str, float]:
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise TypeError("test_metrics must be an object.")
+    return {str(key): float(item) for key, item in value.items()}

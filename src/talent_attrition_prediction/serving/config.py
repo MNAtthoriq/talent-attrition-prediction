@@ -19,6 +19,7 @@ class ServingSettings:
 
     model_uri: str
     tracking_uri: str
+    model_descriptor_path: Path | None = None
     host: str = "127.0.0.1"
     port: int = 8000
 
@@ -31,6 +32,11 @@ class ServingSettings:
             raise ValueError("host cannot be blank.")
         if not 1 <= self.port <= 65535:
             raise ValueError("port must be between 1 and 65535.")
+        if (
+            self.model_descriptor_path is not None
+            and not self.model_descriptor_path.is_file()
+        ):
+            raise ValueError("model_descriptor_path must identify an existing file.")
 
     @classmethod
     def load(cls) -> ServingSettings:
@@ -49,6 +55,7 @@ class ServingSettings:
                 "MLFLOW_TRACKING_URI",
                 default_tracking_uri,
             ),
+            model_descriptor_path=_optional_path(os.getenv("TALENT_MODEL_DESCRIPTOR")),
             host=os.getenv("TALENT_API_HOST", "127.0.0.1"),
             port=_environment_port(os.getenv("PORT", "8000")),
         )
@@ -67,3 +74,9 @@ def _environment_port(raw_value: str) -> int:
         return int(raw_value)
     except ValueError as error:
         raise ValueError("PORT must be an integer.") from error
+
+
+def _optional_path(raw_value: str | None) -> Path | None:
+    if raw_value is None or not raw_value.strip():
+        return None
+    return Path(raw_value).expanduser().resolve()
