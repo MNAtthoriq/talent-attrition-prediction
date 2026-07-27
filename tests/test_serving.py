@@ -45,8 +45,8 @@ def client() -> TestClient:
     service = ModelService(
         _PredictingModel(),
         ModelDescriptor(
-            model_uri="models:/talent-job_change_intent-classifier@candidate",
-            model_name="talent-job_change_intent-classifier",
+            model_uri="models:/talent-job-change-intent-classifier@candidate",
+            model_name="talent-job-change-intent-classifier",
             model_version="1",
             model_alias="candidate",
             run_id="run-123",

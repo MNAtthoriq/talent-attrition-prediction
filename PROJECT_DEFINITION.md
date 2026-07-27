@@ -4,39 +4,40 @@
 
 ### A. Problem Statement
 
-The company recruits data science talent from participants in its training program. Training capacity and investment are limited, while some participants leave the company after receiving training.
+The company recruits data science talent from participants in its training program. Training capacity and budget are limited, while some participants are looking for other job opportunities instead of planning to work with the company after training.
 
-The company wants to prioritize eligible candidates who are most likely to remain after training, with the objective of improving retention and reducing unrecovered training investment and employee turnover costs.
+The company wants to prioritize eligible candidates with lower job-change intent. This helps the company use training capacity, recruitment time, and training investment more effectively.
 
 ### B. Supported Decision
 
-Before training begins, the model ranks eligible candidates from lowest to highest predicted attrition risk.
+Before training begins, the model ranks eligible candidates from the lowest to the highest predicted job-change intent.
 
-Candidates with lower predicted attrition risk receive priority until the available training capacity is filled.
+Candidates with lower predicted job-change intent receive higher priority until all available training slots are filled.
 
 ### C. Business Metrics
 
-The primary business metric is the **attrition rate** among selected participants.
+The primary business metric is the **job-change intent rate** among selected participants.
 
 The project compares:
 
-1. Baseline attrition rate without model-based selection.
-2. Attrition rate with model-based selection.
-3. Absolute and relative reductions in attrition rate.
-4. Estimated training and turnover costs avoided.
+1. The baseline job-change intent rate without model-based selection.
+2. The job-change intent rate with model-based selection.
+3. The absolute and relative reduction in job-change intent rate.
 
-Both approaches use the same number of training places so that the comparison measures the value of model-based selection rather than the effect of training fewer participants.
+Both approaches use the same number of training slots. This ensures that the comparison measures the value of model-based selection, rather than the effect of selecting fewer participants.
 
 ## Technical Explanation
 
 ### A. Prediction Target
 
-The target is interpreted from the dataset's business context as:
+Based on the dataset documentation, the target is interpreted as:
 
-* `0`: the participant **stays** with the company after training.
-* `1`: the participant **leaves** the company after training.
+* `0`: the participant is not looking for a job change.
+* `1`: the participant is looking for a job change.
 
-The model estimates the probability of post-training attrition.
+The model estimates stated job-change intent at the time represented by the
+dataset. It does not directly predict future employee attrition or confirm that
+a participant will leave an employer.
 
 ### B. Prediction Time
 

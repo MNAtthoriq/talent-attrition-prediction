@@ -87,7 +87,8 @@ def create_app(
             test_metrics=descriptor.test_metrics,
             features=list(MODEL_FEATURES),
             prediction_output=(
-                "Probability that target=1 (participant leaves or changes jobs)."
+                "Probability that target=1, indicating that the participant "
+                "is looking for a job change."
             ),
         )
 
