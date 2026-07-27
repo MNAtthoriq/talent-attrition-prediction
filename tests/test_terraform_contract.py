@@ -28,7 +28,7 @@ def test_tfvars_example_exposes_every_declared_project_setting() -> None:
 
 def test_python_runtime_config_is_generated_from_terraform_variables() -> None:
     main_tf = (TERRAFORM_DIR / "main.tf").read_text(encoding="utf-8")
-    config_source = Path("src/talent_attrition_prediction/config.py").read_text(
+    config_source = Path("src/talent_job_change_intent_prediction/config.py").read_text(
         encoding="utf-8"
     )
     generated_block = main_tf.split("content = jsonencode({", maxsplit=1)[1].split(
@@ -74,7 +74,7 @@ def test_terraform_provisions_data_and_cloud_run_foundation() -> None:
     assert 'public_access_prevention    = "enforced"' in main_tf
     assert "uniform_bucket_level_access = true" in main_tf
     assert "versioning {" in main_tf
-    assert 'resource "google_bigquery_dataset" "talent_attrition"' in main_tf
+    assert 'resource "google_bigquery_dataset" "talent_job_change_intent"' in main_tf
     assert 'resource "google_artifact_registry_repository" "api"' in main_tf
     assert 'resource "google_service_account" "cloud_run"' in main_tf
     assert "depends_on = [google_project_service.required]" in main_tf

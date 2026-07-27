@@ -1,6 +1,6 @@
 output "bigquery_dataset" {
   description = "Fully qualified BigQuery dataset created by Terraform."
-  value       = "${var.project_id}.${google_bigquery_dataset.talent_attrition.dataset_id}"
+  value       = "${var.project_id}.${google_bigquery_dataset.talent_job_change_intent.dataset_id}"
 }
 
 output "project_id" {

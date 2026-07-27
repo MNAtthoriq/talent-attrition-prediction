@@ -10,7 +10,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
-from talent_attrition_prediction.modeling.preprocessing import (
+from talent_job_change_intent_prediction.modeling.preprocessing import (
     PreprocessingConfig,
     build_model_pipeline,
 )

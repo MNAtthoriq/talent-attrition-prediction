@@ -12,7 +12,7 @@ import pandas as pd
 from google.cloud import bigquery
 from sklearn.model_selection import train_test_split
 
-from talent_attrition_prediction.config import Settings
+from talent_job_change_intent_prediction.config import Settings
 
 IDENTIFIER_COLUMN = "enrollee_id"
 TARGET_COLUMN = "target"

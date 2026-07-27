@@ -23,7 +23,7 @@ locals {
   runtime_config_path = abspath("${path.module}/../../.runtime/project_config.json")
   storage_bucket_name = coalesce(
     var.storage_bucket_name,
-    "${var.project_id}-talent-attrition-raw",
+    "${var.project_id}-talent-job-change-intent-raw",
   )
 }
 
@@ -62,7 +62,7 @@ resource "google_artifact_registry_repository" "api" {
   project       = var.project_id
   location      = var.location
   repository_id = var.artifact_repository_id
-  description   = "Versioned container images for the talent attrition API."
+  description   = "Versioned container images for the talent job-change intent API."
   format        = "DOCKER"
   labels        = var.resource_labels
 
@@ -93,8 +93,8 @@ resource "google_artifact_registry_repository" "api" {
 resource "google_service_account" "cloud_run" {
   project      = var.project_id
   account_id   = var.cloud_run_service_account_id
-  display_name = "Talent attrition Cloud Run runtime"
-  description  = "Least-privilege identity for the talent attrition prediction API."
+  display_name = "Talent job-change intent Cloud Run runtime"
+  description  = "Least-privilege identity for the talent job-change intent prediction API."
 
   depends_on = [google_project_service.required]
 }
@@ -164,11 +164,11 @@ resource "google_cloud_run_v2_service" "api" {
   ]
 }
 
-resource "google_bigquery_dataset" "talent_attrition" {
+resource "google_bigquery_dataset" "talent_job_change_intent" {
   project                    = var.project_id
   dataset_id                 = var.bigquery_dataset_id
-  friendly_name              = "Talent Attrition"
-  description                = "Raw and modeling data for the talent attrition ML project."
+  friendly_name              = "Talent Job-Change Intent"
+  description                = "Raw and modeling data for the talent job-change intent ML project."
   location                   = var.location
   delete_contents_on_destroy = var.delete_contents_on_destroy
   labels                     = var.resource_labels
@@ -184,7 +184,7 @@ resource "local_file" "runtime_config" {
     project_id            = var.project_id
     location              = var.location
     storage_bucket_name   = google_storage_bucket.raw_data.name
-    dataset_id            = google_bigquery_dataset.talent_attrition.dataset_id
+    dataset_id            = google_bigquery_dataset.talent_job_change_intent.dataset_id
     raw_table_id          = var.raw_table_id
     modeling_table_id     = var.modeling_table_id
     kaggle_dataset_handle = var.kaggle_dataset_handle
@@ -199,6 +199,6 @@ resource "local_file" "runtime_config" {
 
   depends_on = [
     google_storage_bucket.raw_data,
-    google_bigquery_dataset.talent_attrition,
+    google_bigquery_dataset.talent_job_change_intent,
   ]
 }

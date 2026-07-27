@@ -5,8 +5,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from talent_attrition_prediction.config import Settings
-from talent_attrition_prediction.modeling.data import (
+from talent_job_change_intent_prediction.config import Settings
+from talent_job_change_intent_prediction.modeling.data import (
     DEFAULT_RANDOM_STATE,
     DEFAULT_TEST_SIZE,
     build_split_manifest,
@@ -14,7 +14,7 @@ from talent_attrition_prediction.modeling.data import (
     split_modeling_data,
     write_split_manifest,
 )
-from talent_attrition_prediction.modeling.preprocessing import (
+from talent_job_change_intent_prediction.modeling.preprocessing import (
     build_preprocessor,
     preprocessing_candidates,
 )
@@ -151,7 +151,7 @@ def main() -> None:
     """Run the modeling preparation CLI."""
     args = _build_parser().parse_args()
     if args.command == "export-results":
-        from talent_attrition_prediction.modeling.reporting import export_results
+        from talent_job_change_intent_prediction.modeling.reporting import export_results
 
         reports_dir = _find_repository_root() / "reports" / "generated"
         output_path = args.output or (reports_dir / "section_c_results.zip")
@@ -167,7 +167,7 @@ def main() -> None:
             random_state=args.random_state,
         )
     elif args.command == "tune":
-        from talent_attrition_prediction.modeling.training import tune_models
+        from talent_job_change_intent_prediction.modeling.training import tune_models
 
         tune_models(
             settings,
@@ -177,7 +177,7 @@ def main() -> None:
             tracking_uri=args.tracking_uri,
         )
     elif args.command == "finalize":
-        from talent_attrition_prediction.modeling.training import finalize_model
+        from talent_job_change_intent_prediction.modeling.training import finalize_model
 
         finalize_model(
             settings,
@@ -190,7 +190,7 @@ def _find_repository_root() -> Path:
     """Find the project root without requiring cloud runtime configuration."""
     for directory in (Path.cwd(), *Path.cwd().parents):
         pyproject = directory / "pyproject.toml"
-        if pyproject.is_file() and "talent-attrition-prediction" in pyproject.read_text(
+        if pyproject.is_file() and "talent-job-change-intent-prediction" in pyproject.read_text(
             encoding="utf-8"
         ):
             return directory

@@ -1,4 +1,4 @@
-"""FastAPI application for individual and batch attrition-risk scoring."""
+"""FastAPI application for individual and batch job-change intent scoring."""
 
 from __future__ import annotations
 
@@ -9,9 +9,9 @@ from typing import Annotated
 import numpy as np
 from fastapi import Depends, FastAPI, Request
 
-from talent_attrition_prediction.modeling.data import MODEL_FEATURES
-from talent_attrition_prediction.serving.config import ServingSettings
-from talent_attrition_prediction.serving.schemas import (
+from talent_job_change_intent_prediction.modeling.data import MODEL_FEATURES
+from talent_job_change_intent_prediction.serving.config import ServingSettings
+from talent_job_change_intent_prediction.serving.schemas import (
     BatchPredictionItem,
     BatchPredictionRequest,
     BatchPredictionResponse,
@@ -20,7 +20,7 @@ from talent_attrition_prediction.serving.schemas import (
     ModelInfoResponse,
     PredictionResponse,
 )
-from talent_attrition_prediction.serving.service import ModelService
+from talent_job_change_intent_prediction.serving.service import ModelService
 
 
 def _model_service(request: Request) -> ModelService:
@@ -49,7 +49,7 @@ def create_app(
         yield
 
     application = FastAPI(
-        title="Talent Attrition Prediction API",
+        title="Talent Job-Change Intent Prediction API",
         version="0.1.0",
         description=(
             "Scores pre-training participants with the complete registered "
@@ -96,12 +96,12 @@ def create_app(
         candidate: CandidateFeatures,
         model_service: ModelServiceDependency,
     ) -> PredictionResponse:
-        attrition_probability = float(
+        job_change_intent_probability = float(
             model_service.predict_probabilities([candidate.model_dump()])[0]
         )
         return PredictionResponse(
-            attrition_probability=attrition_probability,
-            retention_probability=1 - attrition_probability,
+            job_change_intent_probability=job_change_intent_probability,
+            no_job_change_intent_probability=1 - job_change_intent_probability,
         )
 
     @application.post("/predict-batch", response_model=BatchPredictionResponse)
@@ -119,9 +119,9 @@ def create_app(
             predictions=[
                 BatchPredictionItem(
                     input_index=index,
-                    attrition_probability=float(probability),
-                    retention_probability=float(1 - probability),
-                    retention_priority_rank=int(ranks[index]),
+                    job_change_intent_probability=float(probability),
+                    no_job_change_intent_probability=float(1 - probability),
+                    training_priority_rank=int(ranks[index]),
                 )
                 for index, probability in enumerate(probabilities)
             ]

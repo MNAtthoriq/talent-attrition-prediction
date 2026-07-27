@@ -8,7 +8,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from talent_attrition_prediction.modeling.tracking import (
+from talent_job_change_intent_prediction.modeling.tracking import (
     DEFAULT_REGISTERED_MODEL_NAME,
 )
 

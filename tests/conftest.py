@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from talent_attrition_prediction.config import Settings
+from talent_job_change_intent_prediction.config import Settings
 
 
 @pytest.fixture
@@ -22,8 +22,8 @@ def runtime_config_path(tmp_path: Path) -> Path:
                 "schema_version": 2,
                 "project_id": "talent-ml-123",
                 "location": "asia-southeast2",
-                "storage_bucket_name": "talent-ml-123-talent-attrition-raw",
-                "dataset_id": "talent_attrition",
+                "storage_bucket_name": "talent-ml-123-talent-job-change-intent-raw",
+                "dataset_id": "talent_job_change_intent",
                 "raw_table_id": "raw_candidates",
                 "modeling_table_id": "modeling_candidates",
                 "kaggle_dataset_handle": (

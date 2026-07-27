@@ -9,8 +9,8 @@ from pathlib import Path
 import mlflow
 from mlflow import MlflowClient
 
-DEFAULT_EXPERIMENT_NAME = "talent-attrition-model-development"
-DEFAULT_REGISTERED_MODEL_NAME = "talent-attrition-classifier"
+DEFAULT_EXPERIMENT_NAME = "talent-job-change-intent-model-development"
+DEFAULT_REGISTERED_MODEL_NAME = "talent-job-change-intent-classifier"
 
 
 @dataclass(frozen=True)

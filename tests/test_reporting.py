@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from talent_attrition_prediction.modeling.reporting import (
+from talent_job_change_intent_prediction.modeling.reporting import (
     export_results,
     write_json,
 )

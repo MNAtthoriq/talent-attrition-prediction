@@ -210,10 +210,10 @@ def capacity_metrics(
             {
                 "selection_fraction": float(fraction),
                 "selected_rows": selected_rows,
-                "baseline_attrition_rate": baseline_rate,
-                "model_selected_attrition_rate": selected_rate,
-                "absolute_attrition_reduction": absolute_reduction,
-                "relative_attrition_reduction": relative_reduction,
+                "baseline_job_change_intent_rate": baseline_rate,
+                "model_selected_job_change_intent_rate": selected_rate,
+                "absolute_job_change_intent_reduction": absolute_reduction,
+                "relative_job_change_intent_reduction": relative_reduction,
             }
         )
     return results

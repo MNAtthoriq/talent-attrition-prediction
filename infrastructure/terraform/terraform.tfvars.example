@@ -2,13 +2,13 @@
 project_id  = "your-gcp-project-id"
 
 # Google Cloud, Cloud Storage, and BigQuery
-location    = "asia-southeast2"
+location = "asia-southeast2"
 
 # Container registry and Cloud Run
-artifact_repository_id       = "talent-attrition"
+artifact_repository_id       = "talent-job-change-intent"
 container_versions_to_keep   = 10
-cloud_run_service_account_id = "talent-attrition-api"
-cloud_run_service_name       = "talent-attrition-api"
+cloud_run_service_account_id = "talent-job-change-intent-api"
+cloud_run_service_name       = "talent-job-change-intent-api"
 
 # Keep null in this file. `uv run talent-deploy` supplies an immutable digest
 # after building and pushing the container.
@@ -22,13 +22,13 @@ request_timeout_seconds       = 60
 container_cpu                 = "1"
 container_memory              = "2Gi"
 
-# Keep null to derive "<project_id>-talent-attrition-raw".
-storage_bucket_name           = null
-force_destroy_storage_bucket  = true
+# Keep null to derive "<project_id>-talent-job-change-intent-raw".
+storage_bucket_name          = null
+force_destroy_storage_bucket = true
 
-bigquery_dataset_id   = "talent_attrition"
-raw_table_id          = "raw_candidates"
-modeling_table_id     = "modeling_candidates"
+bigquery_dataset_id        = "talent_job_change_intent"
+raw_table_id               = "raw_candidates"
+modeling_table_id          = "modeling_candidates"
 delete_contents_on_destroy = true
 
 # Pinned data source and reproducibility contract
@@ -40,12 +40,12 @@ expected_size_bytes   = 1961145
 expected_sha256       = "8b78da3482032500df40d5359c36ba4a59e28ccd6fc272b050dcf6dee37f114c"
 
 # Repository-relative application paths
-reports_dir  = "reports/generated"
-sql_dir      = "sql"
+reports_dir = "reports/generated"
+sql_dir     = "sql"
 
 # Reused by BigQuery now and future resources such as Artifact Registry.
 resource_labels = {
-  application = "talent-attrition-prediction"
+  application = "talent-job-change-intent-prediction"
   environment = "development"
   managed_by  = "terraform"
 }

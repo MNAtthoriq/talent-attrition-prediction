@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from talent_attrition_prediction.data import schema
+from talent_job_change_intent_prediction.data import schema
 
 
 def _write_csv(

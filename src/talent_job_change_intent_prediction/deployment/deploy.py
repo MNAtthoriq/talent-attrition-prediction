@@ -9,14 +9,14 @@ import shutil
 import subprocess
 import sys
 
-from talent_attrition_prediction.deployment.export_model import export_model
-from talent_attrition_prediction.deployment.paths import (
+from talent_job_change_intent_prediction.deployment.export_model import export_model
+from talent_job_change_intent_prediction.deployment.paths import (
     REPOSITORY_ROOT,
     TERRAFORM_DIR,
     TERRAFORM_VARIABLES_FILE,
 )
-from talent_attrition_prediction.deployment.smoke_test import smoke_test
-from talent_attrition_prediction.serving.config import ServingSettings
+from talent_job_change_intent_prediction.deployment.smoke_test import smoke_test
+from talent_job_change_intent_prediction.serving.config import ServingSettings
 
 PROJECT_ID = re.compile(r"^[a-z][a-z0-9-]{4,28}[a-z0-9]$")
 IMMUTABLE_IMAGE = re.compile(r"^.+-docker\.pkg\.dev/.+@sha256:[a-f0-9]{64}$")

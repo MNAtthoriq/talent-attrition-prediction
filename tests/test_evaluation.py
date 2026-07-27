@@ -7,14 +7,14 @@ import pandas as pd
 import pytest
 from sklearn.linear_model import LogisticRegression
 
-from talent_attrition_prediction.modeling.data import MODEL_FEATURES
-from talent_attrition_prediction.modeling.evaluation import (
+from talent_job_change_intent_prediction.modeling.data import MODEL_FEATURES
+from talent_job_change_intent_prediction.modeling.evaluation import (
     capacity_metrics,
     choose_f2_threshold,
     evaluate_cross_validation,
     fairness_by_group,
 )
-from talent_attrition_prediction.modeling.preprocessing import (
+from talent_job_change_intent_prediction.modeling.preprocessing import (
     PreprocessingConfig,
     build_model_pipeline,
 )
@@ -98,9 +98,9 @@ def test_capacity_metrics_reward_correct_low_risk_ranking() -> None:
     )[0]
 
     assert result["selected_rows"] == 2
-    assert result["baseline_attrition_rate"] == 0.5
-    assert result["model_selected_attrition_rate"] == 0.0
-    assert result["relative_attrition_reduction"] == 1.0
+    assert result["baseline_job_change_intent_rate"] == 0.5
+    assert result["model_selected_job_change_intent_rate"] == 0.0
+    assert result["relative_job_change_intent_reduction"] == 1.0
 
 
 def test_f2_threshold_is_derived_from_scores() -> None:

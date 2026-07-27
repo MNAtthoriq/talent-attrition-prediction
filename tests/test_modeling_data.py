@@ -7,7 +7,7 @@ from dataclasses import replace
 import pandas as pd
 import pytest
 
-from talent_attrition_prediction.modeling import data
+from talent_job_change_intent_prediction.modeling import data
 
 
 class _FakeQueryJob:

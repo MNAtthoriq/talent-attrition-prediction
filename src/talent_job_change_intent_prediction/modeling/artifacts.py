@@ -8,7 +8,7 @@ from pathlib import Path
 
 os.environ.setdefault(
     "MPLCONFIGDIR",
-    str(Path(tempfile.gettempdir()) / "talent-attrition-matplotlib"),
+    str(Path(tempfile.gettempdir()) / "talent-job-change-intent-matplotlib"),
 )
 
 import matplotlib
@@ -21,7 +21,7 @@ from sklearn.metrics import (
     confusion_matrix,
 )
 
-from talent_attrition_prediction.modeling.evaluation import capacity_metrics
+from talent_job_change_intent_prediction.modeling.evaluation import capacity_metrics
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -128,8 +128,8 @@ def _capacity_plot(
         selection_fractions=fractions,
     )
     x = [float(row["selection_fraction"]) for row in rows]
-    model_rate = [float(row["model_selected_attrition_rate"]) for row in rows]
-    baseline_rate = float(rows[0]["baseline_attrition_rate"])
+    model_rate = [float(row["model_selected_job_change_intent_rate"]) for row in rows]
+    baseline_rate = float(rows[0]["baseline_job_change_intent_rate"])
 
     figure, axis = plt.subplots(figsize=(7, 5))
     axis.plot(x, model_rate, marker="o", label="Model-selected candidates")
@@ -140,7 +140,7 @@ def _capacity_plot(
         label="Random-selection expectation",
     )
     axis.set_xlabel("Fraction of candidates selected")
-    axis.set_ylabel("Attrition rate among selected candidates")
+    axis.set_ylabel("Job-change intent rate among selected candidates")
     axis.set_title("Business selection performance on test data")
     axis.set_ylim(bottom=0)
     axis.legend()

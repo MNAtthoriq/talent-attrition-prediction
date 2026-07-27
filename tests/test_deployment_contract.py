@@ -11,15 +11,15 @@ from unittest.mock import patch
 
 import pytest
 
-from talent_attrition_prediction.deployment.deploy import (
+from talent_job_change_intent_prediction.deployment.deploy import (
     _current_container_image,
     _require_clean_worktree,
     _resolve_image_digest,
 )
-from talent_attrition_prediction.deployment.export_model import (
+from talent_job_change_intent_prediction.deployment.export_model import (
     _assert_safe_destination,
 )
-from talent_attrition_prediction.serving.service import (
+from talent_job_change_intent_prediction.serving.service import (
     ModelDescriptor,
     _load_exported_descriptor,
 )
@@ -33,8 +33,8 @@ def test_exported_descriptor_restores_model_lineage(tmp_path: Path) -> None:
                 "schema_version": 1,
                 "bundle_sha256": "a" * 64,
                 "model": {
-                    "model_uri": "models:/talent-attrition-classifier@candidate",
-                    "model_name": "talent-attrition-classifier",
+                    "model_uri": "models:/talent-job-change-intent-classifier@candidate",
+                    "model_name": "talent-job-change-intent-classifier",
                     "model_version": "3",
                     "model_alias": "candidate",
                     "run_id": "run-123",
@@ -94,18 +94,18 @@ def test_pyproject_exposes_deployment_commands() -> None:
 
     assert (
         "talent-export-model = "
-        '"talent_attrition_prediction.deployment.export_model:main"'
+        '"talent_job_change_intent_prediction.deployment.export_model:main"'
     ) in pyproject
     assert (
-        'talent-deploy = "talent_attrition_prediction.deployment.deploy:main"'
+        'talent-deploy = "talent_job_change_intent_prediction.deployment.deploy:main"'
     ) in pyproject
     assert (
-        'talent-smoke-test = "talent_attrition_prediction.deployment.smoke_test:main"'
+        'talent-smoke-test = "talent_job_change_intent_prediction.deployment.smoke_test:main"'
     ) in pyproject
 
 
 def test_deploy_uses_terraform_variables_as_gcp_source_of_truth() -> None:
-    source = Path("src/talent_attrition_prediction/deployment/deploy.py").read_text(
+    source = Path("src/talent_job_change_intent_prediction/deployment/deploy.py").read_text(
         encoding="utf-8"
     )
 
@@ -123,14 +123,14 @@ def test_existing_cloud_run_digest_is_preserved_during_bootstrap() -> None:
     )
     terraform_output = json.dumps({"deployed_container_image": {"value": digest}})
 
-    with patch("talent_attrition_prediction.deployment.deploy._run") as run:
+    with patch("talent_job_change_intent_prediction.deployment.deploy._run") as run:
         run.return_value.returncode = 0
         run.return_value.stdout = terraform_output
         assert _current_container_image() == digest
 
 
 def test_missing_legacy_terraform_output_is_safe_for_first_deploy() -> None:
-    with patch("talent_attrition_prediction.deployment.deploy._run") as run:
+    with patch("talent_job_change_intent_prediction.deployment.deploy._run") as run:
         run.return_value.returncode = 1
         run.return_value.stdout = ""
         assert _current_container_image() is None
@@ -139,7 +139,7 @@ def test_missing_legacy_terraform_output_is_safe_for_first_deploy() -> None:
 def test_deploy_rejects_uncommitted_source() -> None:
     with (
         patch(
-            "talent_attrition_prediction.deployment.deploy._capture",
+            "talent_job_change_intent_prediction.deployment.deploy._capture",
             return_value=" M src/example.py",
         ),
         pytest.raises(RuntimeError, match="not clean"),
@@ -155,7 +155,7 @@ def test_image_tag_is_resolved_with_official_describe_command() -> None:
     digest = "sha256:" + "b" * 64
 
     with patch(
-        "talent_attrition_prediction.deployment.deploy._capture",
+        "talent_job_change_intent_prediction.deployment.deploy._capture",
         return_value=digest,
     ) as capture:
         assert _resolve_image_digest(tag) == f"{tag.rsplit(':', 1)[0]}@{digest}"
@@ -180,7 +180,7 @@ def test_model_download_directory_is_separate_from_staging(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    export_module = import_module("talent_attrition_prediction.deployment.export_model")
+    export_module = import_module("talent_job_change_intent_prediction.deployment.export_model")
     monkeypatch.setattr(export_module, "REPOSITORY_ROOT", tmp_path)
     monkeypatch.setattr(
         export_module.ModelService,

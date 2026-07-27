@@ -1,1 +1,1 @@
-# Talent Attrition Prediction: An End-to-End MLOps Project
+# Talent Job-Change Intent Prediction: An End-to-End MLOps Project

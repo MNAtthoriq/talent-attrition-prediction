@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import uvicorn
 
-from talent_attrition_prediction.serving.config import ServingSettings
+from talent_job_change_intent_prediction.serving.config import ServingSettings
 
 
 def main() -> None:
     """Start the configured prediction API."""
     settings = ServingSettings.load()
     uvicorn.run(
-        "talent_attrition_prediction.serving.app:app",
+        "talent_job_change_intent_prediction.serving.app:app",
         host=settings.host,
         port=settings.port,
     )

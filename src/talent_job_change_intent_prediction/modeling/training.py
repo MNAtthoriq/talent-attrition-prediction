@@ -16,33 +16,33 @@ from mlflow.models import infer_signature
 from optuna.trial import TrialState
 from sklearn.dummy import DummyClassifier
 
-from talent_attrition_prediction.config import Settings
-from talent_attrition_prediction.modeling.artifacts import (
+from talent_job_change_intent_prediction.config import Settings
+from talent_job_change_intent_prediction.modeling.artifacts import (
     create_evaluation_plots,
 )
-from talent_attrition_prediction.modeling.data import (
+from talent_job_change_intent_prediction.modeling.data import (
     build_split_manifest,
     load_modeling_data,
     split_modeling_data,
 )
-from talent_attrition_prediction.modeling.evaluation import (
+from talent_job_change_intent_prediction.modeling.evaluation import (
     evaluate_cross_validation,
     evaluate_holdout,
     fairness_by_group,
     flat_mlflow_metrics,
 )
-from talent_attrition_prediction.modeling.models import (
+from talent_job_change_intent_prediction.modeling.models import (
     build_pipeline_from_params,
     initial_search_candidates,
     suggest_pipeline,
 )
-from talent_attrition_prediction.modeling.preprocessing import (
+from talent_job_change_intent_prediction.modeling.preprocessing import (
     PreprocessingConfig,
     build_model_pipeline,
     preprocessing_candidates,
 )
-from talent_attrition_prediction.modeling.reporting import write_json
-from talent_attrition_prediction.modeling.tracking import (
+from talent_job_change_intent_prediction.modeling.reporting import write_json
+from talent_job_change_intent_prediction.modeling.tracking import (
     DEFAULT_REGISTERED_MODEL_NAME,
     configure_tracking,
     repository_root_from_config,
@@ -461,7 +461,7 @@ def _mlflow_params(params: dict[str, Any]) -> dict[str, str | int | float | bool
 def _study_name(source_sha256: str, cv_folds: int) -> str:
     """Isolate scores that use different data, CV, or search-space contracts."""
     return (
-        f"talent-attrition-v{_SEARCH_SPACE_VERSION}-{source_sha256[:12]}-cv{cv_folds}"
+        f"talent-job-change-intent-v{_SEARCH_SPACE_VERSION}-{source_sha256[:12]}-cv{cv_folds}"
     )
 
 

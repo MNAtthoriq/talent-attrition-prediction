@@ -1,4 +1,4 @@
-"""Schema and data validation for the Talent Attrition GCS-to-BigQuery ELT pipeline."""
+"""Schema and data validation for the Talent Job-Change Intent GCS-to-BigQuery ELT pipeline."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from pathlib import Path
 
 from google.cloud import bigquery
 
-from talent_attrition_prediction.config import Settings
+from talent_job_change_intent_prediction.config import Settings
 
 # Constants
 EXPECTED_COLUMNS = (

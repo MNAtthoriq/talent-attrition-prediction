@@ -1,11 +1,11 @@
-"""Test the Talent Attrition GCS-to-BigQuery ELT pipeline."""
+"""Test the Talent Job-Change Intent GCS-to-BigQuery ELT pipeline."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
 
-from talent_attrition_prediction.data import pipeline
+from talent_job_change_intent_prediction.data import pipeline
 
 
 @dataclass

@@ -1,7 +1,7 @@
 [project]
-name = "talent-attrition-prediction"
+name = "talent-job-change-intent-prediction"
 version = "0.1.0"
-description = "End-to-end MLOps system for predicting talent attrition and supporting training-candidate selection."
+description = "End-to-end MLOps system for predicting talent job-change intent and supporting training-candidate selection."
 authors = [
     { name = "MNAtthoriq", email = "mnatthoriq@gmail.com" }
 ]
@@ -23,13 +23,13 @@ dependencies = [
 ]
 
 [project.scripts]
-talent-attrition-prediction = "talent_attrition_prediction:main"
-talent-data = "talent_attrition_prediction.data.pipeline:main"
-talent-modeling = "talent_attrition_prediction.modeling.prepare:main"
-talent-api = "talent_attrition_prediction.serving.run:main"
-talent-export-model = "talent_attrition_prediction.deployment.export_model:main"
-talent-deploy = "talent_attrition_prediction.deployment.deploy:main"
-talent-smoke-test = "talent_attrition_prediction.deployment.smoke_test:main"
+talent-job-change-intent-prediction = "talent_job_change_intent_prediction:main"
+talent-data = "talent_job_change_intent_prediction.data.pipeline:main"
+talent-modeling = "talent_job_change_intent_prediction.modeling.prepare:main"
+talent-api = "talent_job_change_intent_prediction.serving.run:main"
+talent-export-model = "talent_job_change_intent_prediction.deployment.export_model:main"
+talent-deploy = "talent_job_change_intent_prediction.deployment.deploy:main"
+talent-smoke-test = "talent_job_change_intent_prediction.deployment.smoke_test:main"
 
 [build-system]
 requires = ["uv_build>=0.11.21,<0.12.0"]

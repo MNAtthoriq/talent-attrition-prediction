@@ -1,13 +1,13 @@
-"""Leakage-safe data splitting and preprocessing for attrition modeling."""
+"""Leakage-safe data splitting and preprocessing for job-change intent modeling."""
 
-from talent_attrition_prediction.modeling.data import (
+from talent_job_change_intent_prediction.modeling.data import (
     DEFAULT_RANDOM_STATE,
     DEFAULT_TEST_SIZE,
     SplitData,
     load_modeling_data,
     split_modeling_data,
 )
-from talent_attrition_prediction.modeling.preprocessing import (
+from talent_job_change_intent_prediction.modeling.preprocessing import (
     PreprocessingConfig,
     build_model_pipeline,
     build_preprocessor,

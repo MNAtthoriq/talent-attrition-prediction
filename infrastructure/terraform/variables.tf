@@ -37,7 +37,7 @@ variable "storage_bucket_name" {
 variable "artifact_repository_id" {
   description = "Artifact Registry Docker repository for API images."
   type        = string
-  default     = "talent-attrition"
+  default     = "talent-job-change-intent"
 
   validation {
     condition     = can(regex("^[a-z][a-z0-9-]{2,62}$", var.artifact_repository_id))
@@ -59,7 +59,7 @@ variable "container_versions_to_keep" {
 variable "cloud_run_service_account_id" {
   description = "Account ID for the dedicated Cloud Run runtime identity."
   type        = string
-  default     = "talent-attrition-api"
+  default     = "talent-job-change-intent-api"
 
   validation {
     condition     = can(regex("^[a-z][a-z0-9-]{4,28}[a-z0-9]$", var.cloud_run_service_account_id))
@@ -70,7 +70,7 @@ variable "cloud_run_service_account_id" {
 variable "cloud_run_service_name" {
   description = "Cloud Run service name."
   type        = string
-  default     = "talent-attrition-api"
+  default     = "talent-job-change-intent-api"
 
   validation {
     condition     = can(regex("^[a-z]([a-z0-9-]{0,47}[a-z0-9])?$", var.cloud_run_service_name))
@@ -175,7 +175,7 @@ variable "force_destroy_storage_bucket" {
 variable "bigquery_dataset_id" {
   description = "BigQuery dataset that contains the raw and modeling tables."
   type        = string
-  default     = "talent_attrition"
+  default     = "talent_job_change_intent"
 
   validation {
     condition     = can(regex("^[A-Za-z_][A-Za-z0-9_]{0,1000}$", var.bigquery_dataset_id))
@@ -308,7 +308,7 @@ variable "resource_labels" {
   description = "Labels applied to supported Google Cloud resources."
   type        = map(string)
   default = {
-    application = "talent-attrition-prediction"
+    application = "talent-job-change-intent-prediction"
     environment = "development"
     managed_by  = "terraform"
   }

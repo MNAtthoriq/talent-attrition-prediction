@@ -8,7 +8,7 @@ from pathlib import Path
 import optuna
 import pytest
 
-from talent_attrition_prediction.modeling.training import (
+from talent_job_change_intent_prediction.modeling.training import (
     _selected_study_name,
     _set_or_validate_study_contract,
     _study_name,

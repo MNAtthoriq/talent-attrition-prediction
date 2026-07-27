@@ -10,7 +10,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
-from talent_attrition_prediction.modeling.data import (
+from talent_job_change_intent_prediction.modeling.data import (
     CITY_FEATURE,
     NOMINAL_FEATURES,
     NUMERIC_FEATURES,

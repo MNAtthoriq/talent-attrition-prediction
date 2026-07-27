@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from mlflow import MlflowClient
 
-from talent_attrition_prediction.modeling.data import MODEL_FEATURES
+from talent_job_change_intent_prediction.modeling.data import MODEL_FEATURES
 
 _ALIASED_MODEL_URI = re.compile(r"^models:/([^/@]+)@([^/]+)$")
 
@@ -111,7 +111,7 @@ class ModelService:
         self,
         candidates: list[dict[str, object]],
     ) -> np.ndarray:
-        """Return attrition probabilities in input order."""
+        """Return job-change intent probabilities in input order."""
         frame = pd.DataFrame(candidates, columns=MODEL_FEATURES)
         raw_prediction = self._model.predict(frame)
         probability = _positive_probability(raw_prediction, expected_rows=len(frame))

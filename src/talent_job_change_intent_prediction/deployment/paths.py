@@ -20,7 +20,7 @@ def find_repository_root() -> Path:
                 return directory
     raise RuntimeError(
         "Could not find the repository root. Run this command from the "
-        "talent-attrition-prediction checkout."
+        "talent-job-change-intent-prediction checkout."
     )
 
 

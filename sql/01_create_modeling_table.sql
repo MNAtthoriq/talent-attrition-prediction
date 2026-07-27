@@ -1,7 +1,7 @@
 CREATE OR REPLACE TABLE
   `{{project_id}}.{{dataset_id}}.{{modeling_table_id}}`
 OPTIONS (
-  description = 'Typed candidate data for attrition modeling and fairness auditing'
+  description = 'Typed candidate data for job-change intent modeling and fairness auditing'
 ) AS
 SELECT
   SAFE_CAST(NULLIF(TRIM(enrollee_id), '') AS INT64) AS enrollee_id,

@@ -5,7 +5,7 @@ from __future__ import annotations
 import optuna
 import pytest
 
-from talent_attrition_prediction.modeling.models import (
+from talent_job_change_intent_prediction.modeling.models import (
     MODEL_NAMES,
     build_pipeline_from_params,
     initial_search_candidates,

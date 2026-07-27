@@ -8,11 +8,11 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
-from talent_attrition_prediction.modeling.data import MODEL_FEATURES
-from talent_attrition_prediction.serving.app import create_app
-from talent_attrition_prediction.serving.config import ServingSettings
-from talent_attrition_prediction.serving.schemas import CandidateFeatures
-from talent_attrition_prediction.serving.service import (
+from talent_job_change_intent_prediction.modeling.data import MODEL_FEATURES
+from talent_job_change_intent_prediction.serving.app import create_app
+from talent_job_change_intent_prediction.serving.config import ServingSettings
+from talent_job_change_intent_prediction.serving.schemas import CandidateFeatures
+from talent_job_change_intent_prediction.serving.service import (
     ModelDescriptor,
     ModelService,
 )
@@ -45,8 +45,8 @@ def client() -> TestClient:
     service = ModelService(
         _PredictingModel(),
         ModelDescriptor(
-            model_uri="models:/talent-attrition-classifier@candidate",
-            model_name="talent-attrition-classifier",
+            model_uri="models:/talent-job_change_intent-classifier@candidate",
+            model_name="talent-job_change_intent-classifier",
             model_version="1",
             model_alias="candidate",
             run_id="run-123",
@@ -86,8 +86,8 @@ def test_predict_returns_both_probabilities(client: TestClient) -> None:
 
     assert response.status_code == 200
     assert response.json() == {
-        "attrition_probability": 0.25,
-        "retention_probability": 0.75,
+        "job_change_intent_probability": 0.25,
+        "no_job_change_intent_probability": 0.75,
     }
 
 
@@ -107,12 +107,12 @@ def test_batch_preserves_input_order_and_adds_priority_rank(
 
     assert response.status_code == 200
     predictions = response.json()["predictions"]
-    assert [row["attrition_probability"] for row in predictions] == [
+    assert [row["job_change_intent_probability"] for row in predictions] == [
         0.80,
         0.10,
         0.40,
     ]
-    assert [row["retention_priority_rank"] for row in predictions] == [3, 1, 2]
+    assert [row["training_priority_rank"] for row in predictions] == [3, 1, 2]
 
 
 def test_request_rejects_unknown_and_invalid_fields(client: TestClient) -> None:

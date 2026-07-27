@@ -13,9 +13,9 @@ from pathlib import Path
 
 import mlflow
 
-from talent_attrition_prediction.deployment.paths import REPOSITORY_ROOT
-from talent_attrition_prediction.serving.config import ServingSettings
-from talent_attrition_prediction.serving.service import ModelService
+from talent_job_change_intent_prediction.deployment.paths import REPOSITORY_ROOT
+from talent_job_change_intent_prediction.serving.config import ServingSettings
+from talent_job_change_intent_prediction.serving.service import ModelService
 
 DEFAULT_OUTPUT_DIR = REPOSITORY_ROOT / ".deployment"
 _BUNDLE_MARKER = ".talent-deployment-bundle"

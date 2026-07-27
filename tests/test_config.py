@@ -8,9 +8,9 @@ from pathlib import Path
 
 import pytest
 
-from talent_attrition_prediction.config import Settings
-from talent_attrition_prediction.data.pipeline import _load_local_env
-from talent_attrition_prediction.serving.config import ServingSettings
+from talent_job_change_intent_prediction.config import Settings
+from talent_job_change_intent_prediction.data.pipeline import _load_local_env
+from talent_job_change_intent_prediction.serving.config import ServingSettings
 
 
 def test_settings_loads_terraform_generated_config(
@@ -20,13 +20,13 @@ def test_settings_loads_terraform_generated_config(
     repository_root = runtime_config_path.parent.parent
 
     assert settings.project_id == "talent-ml-123"
-    assert settings.dataset_id == "talent_attrition"
-    assert settings.storage_bucket_name == "talent-ml-123-talent-attrition-raw"
+    assert settings.dataset_id == "talent_job_change_intent"
+    assert settings.storage_bucket_name == "talent-ml-123-talent-job-change-intent-raw"
     assert settings.raw_gcs_uri == (
-        "gs://talent-ml-123-talent-attrition-raw/raw/kaggle/v1/aug_train.csv"
+        "gs://talent-ml-123-talent-job-change-intent-raw/raw/kaggle/v1/aug_train.csv"
     )
     assert settings.reports_dir == repository_root / "reports/generated"
-    assert settings.raw_table_fqn == ("talent-ml-123.talent_attrition.raw_candidates")
+    assert settings.raw_table_fqn == ("talent-ml-123.talent_job_change_intent.raw_candidates")
 
 
 def test_invalid_bigquery_identifier_is_rejected(

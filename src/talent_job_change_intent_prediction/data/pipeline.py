@@ -1,4 +1,4 @@
-"""Run the Talent Attrition GCS-to-BigQuery ELT pipeline."""
+"""Run the Talent Job-Change Intent GCS-to-BigQuery ELT pipeline."""
 
 from __future__ import annotations
 
@@ -15,8 +15,8 @@ from dotenv import load_dotenv
 from google.api_core.exceptions import NotFound, PreconditionFailed
 from google.cloud import bigquery, storage
 
-from talent_attrition_prediction.config import Settings
-from talent_attrition_prediction.data.schema import (
+from talent_job_change_intent_prediction.config import Settings
+from talent_job_change_intent_prediction.data.schema import (
     EXPECTED_COLUMNS,
     RAW_BIGQUERY_SCHEMA,
     CsvManifest,
@@ -48,7 +48,7 @@ def acquire_raw_data(settings: Settings) -> dict[str, Any]:
         print(f"Reusing verified raw object {settings.raw_gcs_uri}")
         return result
 
-    with tempfile.TemporaryDirectory(prefix="talent-attrition-") as temp_dir:
+    with tempfile.TemporaryDirectory(prefix="talent-job-change-intent-") as temp_dir:
         raw_path = _download_to_directory(settings, Path(temp_dir))
         manifest = validate_csv(raw_path, settings)
         blob.metadata = _manifest_metadata(manifest)
@@ -386,7 +386,7 @@ def _build_parser() -> argparse.ArgumentParser:
     """Build the command-line parser."""
     parser = argparse.ArgumentParser(
         prog="talent-data",
-        description="Run the Talent Attrition GCS-to-BigQuery ELT pipeline.",
+        description="Run the Talent Job-Change Intent GCS-to-BigQuery ELT pipeline.",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser(

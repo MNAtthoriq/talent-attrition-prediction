@@ -10,7 +10,7 @@ import urllib.error
 import urllib.request
 from typing import Any
 
-from talent_attrition_prediction.deployment.paths import (
+from talent_job_change_intent_prediction.deployment.paths import (
     REPOSITORY_ROOT,
     TERRAFORM_DIR,
 )
@@ -55,13 +55,13 @@ def smoke_test(base_url: str, *, wait_seconds: int = 180) -> None:
         payload=SAMPLE_CANDIDATE,
     )
 
-    probability = prediction.get("attrition_probability")
-    retention = prediction.get("retention_probability")
-    if not isinstance(probability, (int, float)) or not 0 <= probability <= 1:
+    job_change_intent = prediction.get("job_change_intent_probability")
+    no_job_change_intent = prediction.get("no_job_change_intent_probability")
+    if not isinstance(job_change_intent, (int, float)) or not 0 <= job_change_intent <= 1:
         raise RuntimeError("Prediction did not contain a valid probability.")
     if (
-        not isinstance(retention, (int, float))
-        or abs(probability + retention - 1) > 1e-9
+        not isinstance(no_job_change_intent, (int, float))
+        or abs(job_change_intent + no_job_change_intent - 1) > 1e-9
     ):
         raise RuntimeError("Prediction probabilities do not sum to one.")
     if not model_info.get("source_sha256") or not model_info.get("run_id"):
@@ -74,7 +74,7 @@ def smoke_test(base_url: str, *, wait_seconds: int = 180) -> None:
         f"{model_info.get('model_name')} version "
         f"{model_info.get('model_version')}"
     )
-    print(f"Attrition probability: {probability:.6f}")
+    print(f"Job-change intent probability: {job_change_intent:.6f}")
 
 
 def _request_json(

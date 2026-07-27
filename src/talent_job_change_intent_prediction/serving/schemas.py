@@ -187,15 +187,15 @@ class BatchPredictionRequest(BaseModel):
 class PredictionResponse(BaseModel):
     """Risk probabilities for one participant."""
 
-    attrition_probability: Annotated[float, Field(ge=0, le=1)]
-    retention_probability: Annotated[float, Field(ge=0, le=1)]
+    job_change_intent_probability: Annotated[float, Field(ge=0, le=1)]
+    no_job_change_intent_probability: Annotated[float, Field(ge=0, le=1)]
 
 
 class BatchPredictionItem(PredictionResponse):
     """One batch result with stable input identity and business ranking."""
 
     input_index: Annotated[int, Field(ge=0)]
-    retention_priority_rank: Annotated[int, Field(ge=1)]
+    training_priority_rank: Annotated[int, Field(ge=1)]
 
 
 class BatchPredictionResponse(BaseModel):
