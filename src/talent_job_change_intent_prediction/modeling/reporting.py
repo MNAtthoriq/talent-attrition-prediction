@@ -47,7 +47,5 @@ def export_results(reports_dir: Path, output_path: Path) -> Path:
             json.dumps({"included": included}, indent=2) + "\n",
         )
     if not included:
-        raise FileNotFoundError(
-            f"No generated results were found in {reports_dir}."
-        )
+        raise FileNotFoundError(f"No generated results were found in {reports_dir}.")
     return output_path
