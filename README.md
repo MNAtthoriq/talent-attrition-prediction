@@ -18,7 +18,7 @@
 
 **Live API:** [Interactive documentation](https://talent-job-change-intent-api-toficgvqwa-et.a.run.app/docs) · [Health check](https://talent-job-change-intent-api-toficgvqwa-et.a.run.app/health) · [Model metadata](https://talent-job-change-intent-api-toficgvqwa-et.a.run.app/model-info)
 
-**Model evaluation evidence:** [Download `final_model_results.zip`](https://github.com/MNAtthoriq/talent-job-change-intent-prediction/releases/latest/download/model_results.zip) · [View release](https://github.com/MNAtthoriq/talent-job-change-intent-prediction/releases/tag/model-v1.0.0)
+**Model evaluation evidence:** [Download `final_model_results.zip`](https://github.com/MNAtthoriq/talent-job-change-intent-prediction/releases/download/model-v1.0.0/final_model_result.zip) · [View release](https://github.com/MNAtthoriq/talent-job-change-intent-prediction/releases/tag/model-v1.0.0)
 
 ## Overview
 
