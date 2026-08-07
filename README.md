@@ -1,6 +1,6 @@
 # Talent Job-Change Intent Prediction: An End-to-End MLOps Project
 
-![Status](https://img.shields.io/badge/Status-Completed-2E7D32)
+![Status](https://img.shields.io/badge/Status-Completed-green)
 
 ![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
 ![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)
@@ -16,218 +16,122 @@
 ![BigQuery](https://img.shields.io/badge/BigQuery-669DF6?logo=googlebigquery&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=githubactions&logoColor=white)
 
-**Live API:** [Interactive documentation](https://talent-job-change-intent-api-toficgvqwa-et.a.run.app/docs) · [Health check](https://talent-job-change-intent-api-toficgvqwa-et.a.run.app/health) · [Model metadata](https://talent-job-change-intent-api-toficgvqwa-et.a.run.app/model-info)
+An end-to-end machine learning system that ranks training candidates by predicted job-change intent, serves predictions through a live API, and deploys the model on Google Cloud.
 
-**Model evaluation evidence:** [Download `final_model_results.zip`](https://github.com/MNAtthoriq/talent-job-change-intent-prediction/releases/download/model-v1.0.0/final_model_result.zip) · [View release](https://github.com/MNAtthoriq/talent-job-change-intent-prediction/releases/tag/model-v1.0.0)
+[Live API](https://talent-job-change-intent-api-toficgvqwa-et.a.run.app/docs) · [Presentation](PRESENTATION.pdf) · [Technical Documentation](TECHNICAL.md)
 
-## Overview
+## Executive Summary
 
-This project builds and deploys a binary-classification system that ranks eligible data science training participants from lower to higher predicted job-change intent before training begins. It combines a versioned GCP data pipeline, leakage-safe preprocessing, cross-validated model selection, MLflow experiment tracking and model registration, FastAPI serving, Docker packaging, and Terraform-based Cloud Run deployment. The model supports training-slot prioritization; it does not confirm future attrition or make final hiring decisions.
+<table>
+  <tr>
+    <td width="18%"><strong>Problem</strong></td>
+    <td>Training capacity and budget are limited, while some participants are already looking for other job opportunities before training begins.</td>
+  </tr>
+  <tr>
+    <td width="18%"><strong>Why It Matters</strong></td>
+    <td>If limited training slots are allocated without considering job-change intent, recruitment time and training investment may be used less effectively.</td>
+  </tr>
+  <tr>
+    <td width="18%"><strong>Solution</strong></td>
+    <td>Built a machine learning system that ranks eligible participants from lower to higher predicted job-change intent, exposes single and batch predictions through an API, and deploys the complete model pipeline on Google Cloud.</td>
+  </tr>
+</table>
 
-See the [project definition](docs/PROJECT_DEFINITION.md) for the full decision scope.
+> The model supports human review. It is not intended to automatically reject candidates or replace interviews, assessments, or human judgment.
 
-## Key Results
+## Results
 
-The selected model was compared with a `DummyClassifier(strategy="prior")` using the same 5-fold stratified cross-validation on the development data.
+### Measured Metrics
 
-| Metric      | Dummy Baseline | Selected Model |              Improvement |
-| :---------- | -------------: | -------------: | -----------------------: |
-| PR-AUC      |         0.2494 |     **0.5553** |              **122.7% better** |
-| ROC-AUC     |         0.5000 |     **0.8063** |               **61.3% better** |
-| Brier Score |         0.1872 |     **0.1691** |           **9.7% better** |
+| Metric | Dummy Baseline | Selected Model | Improvement |
+|---|---:|---:|---:|
+| PR-AUC | 0.2492 | **0.5461** | **119.1% higher** |
+| ROC-AUC | 0.5000 | **0.8013** | **60.3% higher** |
+| Brier Score | 0.1871 | **0.1686** | **9.9% lower** |
 
-At the selected classification threshold, the model also achieved **0.7972 recall**, meaning it identified approximately **79.7% of participants with job-change intent** in the development out-of-fold predictions.
+At the selected threshold, the model achieved **77.70% recall**, correctly identifying 742 of the 955 participants with job-change intent in the test data.
 
-For the business comparison, the baseline and model-based approaches use the same number of training slots. Participants with the lowest predicted job-change intent are selected first.
+At **25% training capacity**, model-based selection reduced the job-change intent rate among selected participants from **24.92% to 6.68%**, a **73.19% relative reduction** compared with the same-size baseline.
 
-| Training Capacity | Selected Participants | Dummy Baseline<br>Job-Change Intent Rate | Selected Model<br>Job-Change Intent Rate | Relative Reduction |
-| ----------------: | --------------------: | ---------------------------------: | ---------------------------------------: | -----------------: |
-|               25% |                   958 |                             24.92% |                                **6.68%** |         **73.19% better** |
-|               50% |                 1,916 |                             24.92% |                                **8.35%** |         **66.49% better** |
-|               75% |                 2,874 |                             24.92% |                               **13.29%** |         **46.67% better** |
+> These results are measured on held-out historical data. They do not prove future employee retention or financial savings.
 
-See the [model card](docs/MODEL_CARD.md) for the full model summary and the [evaluation plots](docs/assets/) for visual evidence of model performance and business selection results.
+### Key Capabilities
+
+- **Verified data pipeline** — validates the source dataset before loading it through Cloud Storage and BigQuery
+- **Reproducible model selection** — compares Logistic Regression, Random Forest, and LightGBM using cross-validation and Optuna
+- **Reliable model evaluation** — keeps the test set untouched until model and threshold selection are complete
+- **Live prediction API** — provides individual probabilities and batch training-priority rankings
+- **Cloud deployment workflow** — packages the model with Docker and deploys it to Cloud Run using Terraform, with automated checks in GitHub Actions
+
+## Live Output
+
+<p align="left">
+  <img src="proof/proof.png" width="500" alt="Dashboard demo — filtering and drill-down">
+</p>
+
+[Open Live API Documentation](https://talent-job-change-intent-api-toficgvqwa-et.a.run.app/docs)
+
+The interactive API documentation lets users test the deployed model directly.
+
+Users can:
+
+- Check whether the API and model are ready
+- View the deployed model version and evaluation metadata
+- Submit one participant and receive a job-change intent probability
+- Submit multiple participants and receive probabilities plus training-priority ranks
+- Inspect the expected input fields and API response format
 
 ## Architecture
 
-The project has two main workflows:
-
-1. An **offline ML pipeline** that prepares data, trains models, evaluates performance, and registers the selected model.
-2. An **online prediction pipeline** that serves job-change intent probabilities and training-priority rankings through FastAPI.
-
 ```mermaid
-flowchart TD
-    %% Data source
-    A["Kaggle Dataset<br/>Participant profile and job-change intent"]
+flowchart LR
+    A[Kaggle Dataset] --> B[Data Pipeline]
+    B --> C[BigQuery]
+    C --> D[Model Training]
+    D --> E[MLflow Model Registry]
+    E --> F[FastAPI + Docker]
+    F --> G[Cloud Run API]
 
-    %% Offline training pipeline
-    subgraph Offline["Offline ML Pipeline"]
-        B["Cloud Storage<br/>Store verified raw CSV"]
-        C["BigQuery + SQL<br/>Clean data and build modeling table"]
-        D["pandas + NumPy<br/>Load data and create train/test split"]
-        E["scikit-learn<br/>Preprocess features without leakage"]
-        F["Optuna<br/>Compare LR, Random Forest, and LightGBM"]
-        G["Model Evaluation<br/>PR-AUC, ROC-AUC, recall, Brier score"]
-        H["MLflow Registry<br/>Store experiments and selected model"]
-    end
+    H[Terraform] -.->|provisions cloud resources| C
+    H -.->|deploys service| G
 
-    %% Online serving pipeline
-    subgraph Online["Online Prediction Pipeline"]
-        I["Candidate Data<br/>Single participant or batch request"]
-        J["FastAPI + Pydantic<br/>Validate input"]
-        K["Registered LightGBM Pipeline<br/>Predict job-change intent"]
-        L["Prediction Output<br/>Intent probability and training priority"]
-    end
-
-    %% Deployment
-    subgraph Deployment["Deployment"]
-        M["Docker<br/>Package API and model"]
-        N["Artifact Registry<br/>Store immutable container image"]
-        O["Cloud Run<br/>Host public prediction API"]
-    end
-
-    %% Supporting systems
-    P["Terraform<br/>Provision GCS, BigQuery, Registry, and Cloud Run"]
-    Q["GitHub Actions<br/>Run tests, linting, build, and Terraform validation"]
-
-    A --> B --> C --> D --> E --> F --> G --> H
-    I --> J --> K --> L
-    H --> M --> N --> O
-    O --> J
-
-    P -. provisions .-> B
-    P -. provisions .-> C
-    P -. provisions .-> N
-    P -. provisions .-> O
-
-    Q -. validates .-> E
-    Q -. validates .-> J
-    Q -. validates .-> P
+    I[GitHub Actions] -.->|tests and validates| B
 ```
 
-## Usage
+In simple terms:
 
-### Prerequisites
+1. Terraform provisions the required Google Cloud infrastructure.
+2. The data pipeline verifies the source dataset and loads it through Cloud Storage into BigQuery.
+3. BigQuery prepares the modeling table used for training.
+4. Multiple model and preprocessing options are compared using cross-validation.
+5. The selected LightGBM model is evaluated and registered in MLflow.
+6. FastAPI serves individual and batch predictions using the registered model pipeline.
+7. Docker packages the API and model, which are deployed to Cloud Run.
+8. GitHub Actions runs tests, linting, package checks, and Terraform validation.
 
-- Python 3.12+
-- [`uv`](https://docs.astral.sh/uv/)
-- Terraform 1.8+
-- Google Cloud CLI
-- Docker
-- A GCP project with billing enabled
+## Technical Documentation
 
-### 1. Clone and install
+For detailed explanation about the data pipeline, model design, evaluation, fairness checks, API, infrastructure, and deployment:
 
-```bash
-git clone https://github.com/MNAtthoriq/talent-job-change-intent-prediction.git
-cd talent-job-change-intent-prediction
-uv sync --frozen
-```
+[Read Technical Documentation](TECHNICAL.md)
 
-### 2. Authenticate and configure GCP
+Presentation slides are available in the [PRESENTATION.pdf](PRESENTATION.pdf)
 
-```bash
-gcloud auth login
-gcloud auth application-default login
+Model evaluation evidence is also available in the
+[model-v1.0.0 release](https://github.com/MNAtthoriq/talent-job-change-intent-prediction/releases/tag/model-v1.0.0).
 
-cp infrastructure/terraform/terraform.tfvars.example \
-   infrastructure/terraform/terraform.tfvars
-```
-
-Set `project_id` in `infrastructure/terraform/terraform.tfvars`, then provision the bootstrap infrastructure:
-
-```bash
-terraform -chdir=infrastructure/terraform init
-terraform -chdir=infrastructure/terraform apply
-```
-
-Terraform creates the Cloud Storage bucket, BigQuery dataset, Artifact Registry repository, Cloud Run service account, required APIs, and `.runtime/project_config.json`.
-
-### 3. Build and validate the data layer
-
-```bash
-cp .env.example .env  # Kaggle token is optional for the public dataset
-uv run talent-data run
-```
-
-This command acquires the pinned dataset, validates its file contract, uploads it to Cloud Storage, loads it into BigQuery, builds the modeling table, and writes data-quality reports.
-
-### 4. Train and register the model
-
-```bash
-uv run talent-modeling prepare
-
-uv run talent-modeling tune \
-  --trials 40 \
-  --cv-folds 5 \
-  --timeout-minutes 30
-
-uv run talent-modeling finalize
-uv run talent-modeling export-results
-```
-
-`tune` uses development data only. `finalize` evaluates the selected pipeline once on the untouched test set and registers it in MLflow with the `candidate` alias.
-
-### 5. Run the API locally
-
-```bash
-uv run talent-api
-```
-
-Open `http://127.0.0.1:8000/docs`.
-
-### 6. Deploy to Cloud Run
-
-Deployment requires a clean Git working tree:
-
-```bash
-git status
-uv run talent-deploy
-uv run talent-smoke-test
-```
-
-The deployment command exports the registered model, builds and pushes a Docker image, resolves its immutable digest, applies Terraform, deploys Cloud Run, and runs an end-to-end smoke test.
-
-### Teardown
-
-```bash
-terraform -chdir=infrastructure/terraform destroy
-```
-
-The development configuration allows Terraform to delete objects in the project-managed Cloud Storage bucket and tables in the project-managed BigQuery dataset. Use it wisely.
-
-## Repository Structure
-
-```text
-.
-├── .github/workflows/ci.yml                # Python and Terraform CI checks
-├── docs/
-│   ├── PROJECT_DEFINITION.md               # Business decision and evaluation contract
-│   └── MODEL_CARD.md                       # Model performance, risks, and lineage
-├── infrastructure/terraform/               # GCP infrastructure as code
-├── sql/                                    # BigQuery transformation and data-quality SQL
-├── src/talent_job_change_intent_prediction/
-│   ├── data/                               # Kaggle → GCS → BigQuery pipeline
-│   ├── modeling/                           # Splitting, preprocessing, tuning, evaluation
-│   ├── serving/                            # FastAPI schemas, service, and endpoints
-│   └── deployment/                         # Model export, Cloud Run deployment, smoke test
-├── tests/                                  # Unit and contract tests
-├── reports/generated/                      # Rebuildable model and data reports; not committed
-├── .env.example                            # Optional local environment overrides
-├── Dockerfile                              # Reproducible non-root API container
-├── pyproject.toml                          # Dependencies and CLI entry points
-├── uv.lock                                 # Locked Python environment
-└── README.md
-```
-
----
-
-## Author
+## About Me
 
 **Muhammad Naufal At-Thoriq**
 
-- GitHub: [MNAtthoriq](https://github.com/MNAtthoriq)
-- LinkedIn: [Muhammad Naufal At-Thoriq](https://linkedin.com/in/mnatthoriq)
+I am an Operations Analyst with two years of experience using data,
+automation, and dashboards to improve operational workflows and decision-making.
 
-**Dataset:** [HR Analytics: Job Change of Data Scientists — Kaggle](https://www.kaggle.com/datasets/arashnic/hr-analytics-job-change-of-data-scientists)
+My professional work includes Python automation, reusable data-processing
+pipelines, operational reporting, data validation, and dashboard development.
 
+I am expanding that experience into cloud data engineering, machine learning,
+MLOps, and data-driven product development.
+
+[GitHub](https://github.com/MNAtthoriq) ·
+[LinkedIn](https://linkedin.com/in/mnatthoriq)
